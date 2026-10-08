@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caixa Preta - Navegação</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background: var(--bg-dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .container {
+      max-width: 800px;
+      padding: 40px;
+      text-align: center;
+    }
+    
+    h1 {
+      color: var(--neon-cyan);
+      font-size: 3rem;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 20px var(--neon-cyan);
+    }
+    
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 2rem 0;
+    }
+    
+    .nav-item {
+      background: var(--bg-dark);
+      border: 2px solid var(--neon-cyan);
+      border-radius: 12px;
+      padding: 20px;
+      text-decoration: none;
+      color: var(--neon-cyan);
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px rgba(0, 255, 247, 0.3);
+    }
+    
+    .nav-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 30px rgba(0, 255, 247, 0.6);
+      border-color: var(--neon-magenta);
+      color: var(--neon-magenta);
+    }
+    
+    .nav-item h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.2rem;
+    }
+    
+    .nav-item p {
+      margin: 0;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="scanlines"></div>
+  <div class="particles" id="particles"></div>
+  
+  <div class="container">
+    <h1>CAIXA PRETA</h1>
+    <p style="color: var(--neon-cyan); font-size: 1.2rem; margin-bottom: 2rem;">
+      Navegação Integrada - Sequência Completa
+    </p>
+    
+    <div class="nav-grid">
+      <a href="1-index.html" class="nav-item">
+        <h3>1. Início</h3>
+        <p>Página inicial com caixa 3D interativa</p>
+      </a>
+      
+      <a href="2-chat.html" class="nav-item">
+        <h3>2. Chat</h3>
+        <p>Interface de conversa com IA</p>
+      </a>
+      
+      <a href="3-transition.html" class="nav-item">
+        <h3>3. Transição</h3>
+        <p>Página de transição entre seções</p>
+      </a>
+      
+      <a href="4-primeira-camada.html" class="nav-item">
+        <h3>4. Primeira Camada</h3>
+        <p>O Algoritmo Invisível</p>
+      </a>
+      
+      <a href="5-segunda-camada.html" class="nav-item">
+        <h3>5. Segunda Camada</h3>
+        <p>As Engrenagens Físicas</p>
+      </a>
+      
+      <a href="6-terceira-camada.html" class="nav-item">
+        <h3>6. Terceira Camada</h3>
+        <p>O Combustível Invisível</p>
+      </a>
+      
+      <a href="7-quarta-camada.html" class="nav-item">
+        <h3>7. Quarta Camada</h3>
+        <p>Interface de chat avançada</p>
+      </a>
+      
+      <a href="8-prefechamento.html" class="nav-item">
+        <h3>8. Pré-fechamento</h3>
+        <p>Versão 1.0 - O Início</p>
+      </a>
+      
+      <a href="9-vibe-coding-desprogramativo.html" class="nav-item">
+        <h3>9. Vibe Coding Desprogramativo</h3>
+        <p>A História por Trás da Caixa Preta</p>
+      </a>
+    </div>
+  </div>
+  
+  <script>
+    // Particle emitter
+    function createParticle() {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + 'vw';
+      particle.style.animationDelay = Math.random() * 6 + 's';
+      document.getElementById('particles').appendChild(particle);
+      setTimeout(() => { particle.remove(); }, 6000);
+    }
+    setInterval(createParticle, 400);
+  </script>
+</body>
+</html>

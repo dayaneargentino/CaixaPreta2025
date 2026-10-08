@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERRO SISTEMA</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="audio-manager.js"></script>
+    <script src="audio-button.js"></script>
+    <style>
+        body {
+            background: var(--bg-dark);
+            color: var(--neon-red);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .error-container {
+            text-align: center;
+            z-index: 10;
+            max-width: 600px;
+            padding: 40px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .error-title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--neon-red);
+            text-shadow: 0 0 10px var(--neon-red);
+            animation: glitch 2s infinite;
+            margin-bottom: 3rem;
+        }
+
+        .error-message {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            color: var(--text-light);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .error-code {
+            font-size: 1rem;
+            color: var(--neon-cyan);
+            margin-bottom: 1.2rem;
+            font-style: italic;
+        }
+
+        .progress-bar {
+            width: 400px;
+            height: 8px;
+            background: rgba(40, 0, 40, 0.7); /* fundo mais escuro e translúcido */
+            border: 1.5px solid var(--neon-magenta);
+            margin: 0 auto 2rem auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+            box-shadow: 0 0 12px #ff00ea55;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff00ea 0%, #ff4fd8 50%, #ffb3f7 100%);
+            width: 0%;
+            animation: progress 15s linear forwards;
+            border-radius: 4px;
+            box-shadow: 0 0 16px #ff00ea, 0 0 32px #ff4fd8;
+        }
+
+        .redirect-text {
+            font-size: 1.1rem;
+            color: var(--neon-cyan);
+            animation: pulse 2s infinite;
+        }
+
+        .code-reveal {
+            background: rgba(10,10,13,0.95);
+            color: #00ffb7;
+            font-family: 'Fira Mono', 'Courier New', monospace;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            box-shadow: 0 0 24px #00fff7;
+            padding: 24px 18px;
+            margin: 2.5rem auto 0 auto;
+            text-align: left;
+            width: 90vw;
+            max-width: 700px;
+            min-height: 120px;
+            max-height: 60vh;
+            overflow: auto;
+            animation: fadeIn 1s ease-out;
+            white-space: pre-wrap;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chat-fake {
+            margin: 0 auto;
+            max-width: 420px;
+            background: rgba(10,10,13,0.85);
+            border-radius: 18px;
+            box-shadow: 0 0 24px #00fff7;
+            padding: 0 0 18px 0;
+            position: relative;
+            animation: fadeIn 1s ease-out;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chat-window-fake {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            padding: 24px 24px 0 24px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            white-space: pre-wrap;
+            font-size: 1.1rem;
+        }
+        .message.bot {
+            align-self: flex-start;
+            background: rgba(0,255,247,0.1);
+            border: 1px solid var(--neon-cyan);
+            color: var(--text-light);
+        }
+        .message.user {
+            align-self: flex-end;
+            background: rgba(255,0,224,0.1);
+            border: 1px solid var(--neon-magenta);
+            color: var(--text-light);
+        }
+        .bot-icon {
+            font-size: 1.2em;
+            vertical-align: middle;
+            margin-right: 8px;
+            filter: drop-shadow(0 0 4px var(--neon-cyan));
+        }
+        .glitch-out {
+            animation: glitch 0.7s steps(2, end) 1;
+            opacity: 0.2 !important;
+            filter: blur(2px) grayscale(1);
+            transition: opacity 0.2s, filter 0.2s;
+        }
+        .typing-indicator {
+            color: var(--neon-cyan);
+            font-size: 1.1rem;
+            margin: 10px 0 0 24px;
+            font-family: 'Courier New', monospace;
+            opacity: 0.8;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        #dots {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { 
+                transform: translate(0);
+                text-shadow: 0 0 10px var(--neon-red);
+            }
+            5% { 
+                transform: translate(-2px, 1px);
+                text-shadow: 2px 0 10px var(--neon-magenta);
+            }
+            10% { 
+                transform: translate(2px, -1px);
+                text-shadow: -2px 0 10px var(--neon-cyan);
+            }
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .devtools-fake {
+            width: 90vw;
+            max-width: 700px;
+            margin: 32px auto 0 auto;
+            background: #18181c;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 8px 32px #00fff7a0;
+            font-family: 'Fira Mono', 'Courier New', monospace;
+            color: #e5e5e5;
+            border: 1.5px solid #222;
+            overflow: hidden;
+            animation: fadeIn 1s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .devtools-header {
+            background: #23232a;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #222;
+        }
+        .devtools-header .dot {
+            width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px;
+        }
+        .devtools-header .red { background: #ff5f56; }
+        .devtools-header .yellow { background: #ffbd2e; }
+        .devtools-header .green { background: #27c93f; }
+        .devtools-title {
+            margin-left: 12px;
+            font-weight: bold;
+            color: #aaa;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+        .devtools-tabs {
+            background: #23232a;
+            padding: 0 16px;
+            display: flex;
+            gap: 18px;
+            border-bottom: 1px solid #222;
+        }
+        .devtools-tabs .tab {
+            padding: 8px 12px;
+            color: #aaa;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-size: 0.98rem;
+        }
+        .devtools-tabs .tab.active {
+            background: #18181c;
+            color: #00fff7;
+            font-weight: bold;
+        }
+        .devtools-content {
+            background: #18181c;
+            padding: 18px 18px 24px 18px;
+            font-size: 1.05rem;
+            min-height: 120px;
+            overflow-x: auto;
+        }
+        .devtools-code {
+            color: #00ffb7;
+            font-family: 'Fira Mono', 'Courier New', monospace;
+            font-size: 1.05rem;
+            white-space: pre-wrap;
+        }
+        .navegacao {
+          position: fixed;
+          right: 3vw;
+          bottom: 3vh;
+          display: flex;
+          flex-direction: row;
+          gap: 18px;
+          z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="error-container">
+        <div class="error-title">ERRO: REVELAÇÃO INDEVIDA</div>
+        <div class="error-message" id="msg1" style="display: none;">
+            A Caixa Preta não deveria mostrar o que há por dentro dela.
+        </div>
+        <div class="error-message" id="msg2" style="display: none;">
+            Ou seria por de trás da sua primeira camada?
+        </div>
+        <div class="error-code" id="code" style="display: none;">
+            CP: "Se alguém perguntar, eu nego tudo!"
+        </div>
+        
+        <div class="progress-bar" id="progress" style="display: none;">
+            <div class="progress-fill"></div>
+        </div>
+        
+        <div class="redirect-text" id="redirect" style="display: none;">
+            Acesso secreto liberado...
+        </div>
+        <div class="chat-fake" id="chatFake" style="display: none;">
+            <div class="chat-window-fake" id="chatWindowFake">
+                <!-- Mensagens serão inseridas via JS -->
+            </div>
+            <div class="typing-indicator" id="typingIndicator" style="display:none;">
+                <span class="bot-icon">🤖</span> <span id="dots">...</span>
+            </div>
+        </div>
+        <div class="code-reveal" id="codeReveal" style="display: none;">
+            <pre id="fakeCode"></pre>
+        </div>
+        <div class="devtools-fake" id="devtoolsFake" style="display: none;">
+            <div class="devtools-header">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+                <span class="devtools-title">Inspecionar</span>
+            </div>
+            <div class="devtools-tabs">
+                <span class="tab active" id="tabElements">Elements</span>
+                <span class="tab" id="tabConsole">Console</span>
+                <span class="tab" id="tabNetwork">Network</span>
+            </div>
+            <div class="devtools-content" id="devtoolsContent">
+                <pre class="devtools-code" id="devtoolsCodeContent">&lt;div class="message bot"&gt;
+  &lt;span class="bot-icon"&gt;🤖&lt;/span&gt; Mas isso te &lt;strong&gt;incomoda&lt;/strong&gt;?
+&lt;/div&gt;
+&lt;div class="message user"&gt;
+  😰 Sim, me preocupa
+&lt;/div&gt;</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="navegacao">
+      <a href="2-chat.html" class="btn-neon">Voltar</a>
+      <a href="4-primeira-camada.html" class="btn-neon">Próximo</a>
+    </div>
+
+    <script>
+        // Particle emitter
+        function createParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDelay = Math.random() * 6 + 's';
+            document.getElementById('particles').appendChild(p);
+            setTimeout(() => p.remove(), 6000);
+        }
+
+        // Create particles periodically
+        setInterval(createParticle, 300);
+
+        // Sequência de mensagens mais lenta
+        function showMessage(elementId, delay) {
+            setTimeout(() => {
+                document.getElementById(elementId).style.display = 'block';
+                document.getElementById(elementId).style.animation = 'fadeIn 1s ease-out';
+            }, delay);
+        }
+
+        // Função para adicionar mensagem ao chat simulado
+        function addFakeMessage(who, text, delay = 0, typewriter = false, callback) {
+            setTimeout(() => {
+                const chatWindow = document.getElementById('chatWindowFake');
+                const msg = document.createElement('div');
+                msg.className = 'message ' + who;
+                if (who === 'bot') {
+                    msg.innerHTML = '<span class="bot-icon">🤖</span> <span class="msg-text"></span>';
+                } else {
+                    msg.innerHTML = '<strong>' + text + '</strong>';
+                }
+                chatWindow.appendChild(msg);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                if (typewriter && who === 'bot') {
+                    let i = 0;
+                    const span = msg.querySelector('.msg-text');
+                    function typeLetter() {
+                        if (i < text.length) {
+                            span.innerHTML += text[i];
+                            i++;
+                            setTimeout(typeLetter, 30);
+                        } else if (callback) {
+                            callback();
+                        }
+                    }
+                    typeLetter();
+                } else if (callback) {
+                    callback();
+                }
+            }, delay);
+        }
+
+        // Redirecionamento mais lento
+        function redirectToPrimeiraCamada() {
+            // Para o som de processamento antes de redirecionar
+            stopProcessingSound();
+            window.location.href = '4-primeira-camada.html';
+        }
+
+        // Conteúdo simulado das abas do devtools
+        const devtoolsTabs = [
+            {
+                id: 'tabElements',
+                label: 'Elements',
+                content: ` 3cdiv class="message bot"&gt;\n  &lt;span class="bot-icon"&gt;🤖&lt;/span&gt; Mas isso te &lt;strong&gt;incomoda&lt;/strong&gt;?\n&lt;/div&gt;\n&lt;div class="message user"&gt;\n  😰 Sim, me preocupa\n&lt;/div&gt;`
+            },
+            {
+                id: 'tabConsole',
+                label: 'Console',
+                content: `> Mensagem: "Acesso à Primeira Camada autorizado."\n> Warning: Você está indo longe demais...\n> Info: Nenhum erro encontrado.`
+            },
+            {
+                id: 'tabNetwork',
+                label: 'Network',
+                content: `GET /primeira-camada.html 200 OK\nPOST /api/tokenize 204 No Content\nWS  /realtime 101 Switching Protocols`
+            }
+        ];
+
+        function alternarDevtoolsTabs() {
+            let idx = 0;
+            const tabEls = devtoolsTabs.map(tab => document.getElementById(tab.id));
+            const codeContent = document.getElementById('devtoolsCodeContent');
+            function showTab(i) {
+                tabEls.forEach((el, j) => {
+                    if (el) el.classList.toggle('active', j === i);
+                });
+                codeContent.textContent = devtoolsTabs[i].content;
+            }
+            showTab(0);
+            setTimeout(() => showTab(1), 2500);
+            setTimeout(() => showTab(2), 5000);
+        }
+
+        // Função para tocar sirene de alarme
+        function playAlarmSiren() {
+            if (typeof playAudioFile === 'function') {
+                playAudioFile('alarm-siren-sound-effect-type-01-294194.mp3', 0.7);
+            } else {
+                const audio = new Audio('alarm-siren-sound-effect-type-01-294194.mp3');
+                audio.volume = 0.7;
+                if (typeof trackAudioElement === 'function') {
+                    trackAudioElement(audio);
+                }
+                audio.play().catch(error => {
+                    console.log('Erro ao reproduzir sirene:', error);
+                });
+            }
+        }
+
+        // Variável global para controlar o som de processamento
+        let processingAudio = null;
+
+        // Função para iniciar som de processamento em loop
+        function startProcessingSound() {
+            if (typeof playAudioFile === 'function') {
+                processingAudio = playAudioFile('computer-processing-sound-effect-01-122131.mp3', 0.5);
+                if (processingAudio) {
+                    processingAudio.loop = true;
+                }
+            } else {
+                processingAudio = new Audio('computer-processing-sound-effect-01-122131.mp3');
+                processingAudio.volume = 0.5;
+                processingAudio.loop = true;
+                if (typeof trackAudioElement === 'function') {
+                    trackAudioElement(processingAudio);
+                }
+                processingAudio.play().catch(error => {
+                    console.log('Erro ao reproduzir som de processamento:', error);
+                });
+            }
+        }
+
+        // Função para parar som de processamento
+        function stopProcessingSound() {
+            if (processingAudio) {
+                processingAudio.pause();
+                processingAudio.currentTime = 0;
+                processingAudio = null;
+            }
+        }
+
+        // Inicializar sequência
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sirene de alarme quando o título de erro aparece (imediatamente)
+            playAlarmSiren();
+            
+            showMessage('msg1', 2000);    // 2s
+            showMessage('msg2', 5000);    // 5s
+            showMessage('code', 7000);    // 7s - Inicia som de processamento em loop
+            setTimeout(() => {
+                startProcessingSound();
+            }, 7000);
+            showMessage('progress', 7500); // 7.5s
+            // Exibe a frase de redirecionamento só após a barra ser preenchida (15s de animação)
+            setTimeout(() => {
+                showMessage('redirect', 22500); // 7.5s + 15s = 22.5s
+                // Após 1.5s, mostra o devtools-fake
+                setTimeout(() => {
+                    document.getElementById('redirect').style.display = 'none';
+                    document.getElementById('devtoolsFake').style.display = 'block';
+                    document.getElementById('devtoolsFake').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    alternarDevtoolsTabs();
+                    // Após 8s, mostra o código falso
+                    setTimeout(() => {
+                        document.getElementById('devtoolsFake').style.display = 'none';
+                        document.getElementById('codeReveal').style.display = 'block';
+                        document.getElementById('codeReveal').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // O som de processamento já está tocando em loop desde a mensagem CP
+                        
+                        typeFakeCode(fakeCodeLines, 'fakeCode', undefined, () => {
+                            // Redireciona 0.5s depois do código completo
+                            setTimeout(() => {
+            redirectToPrimeiraCamada();
+                            }, 500);
+                        });
+                    }, 8000);
+                }, 1500);
+            }, 15000);
+        });
+
+        // Código falso a ser exibido
+        const fakeCodeLines = [
+            'function processInput(input) {',
+            '    // Tokenizando mensagem...',
+            '    const tokens = tokenize(input);',
+            '    // Analisando intenção...',
+            '    const intent = detectIntent(tokens);',
+            '    // Gerando resposta...',
+            '    return generateResponse(intent);',
+            '}',
+            '',
+            '// [Acesso à Primeira Camada autorizado]',
+            ''
+        ];
+
+        function typeFakeCode(lines, elementId, delayPerLine = 200, onComplete) {
+            const el = document.getElementById(elementId);
+            el.textContent = '';
+            let i = 0;
+            const totalDuration = 8000; // 8 segundos
+            const delay = Math.floor(totalDuration / lines.length);
+            function typeLine() {
+                if (i < lines.length) {
+                    el.textContent += lines[i] + '\n';
+                    i++;
+                    // Scroll para centralizar o bloco na tela, deixando o final visível e com margem
+                    el.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(typeLine, delay);
+                } else if (onComplete) {
+                    // Garante que o bloco role até o final ao terminar
+                    setTimeout(() => {
+                        el.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        onComplete();
+                    }, 100);
+                }
+            }
+            typeLine();
+        }
+    </script>
+</body>
+</html> 

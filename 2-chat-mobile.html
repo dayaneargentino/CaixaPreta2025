@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Chat - Caixa Preta Mobile</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-mobile.css">
+    <script src="audio-manager.js"></script>
+    <script src="audio-button.js"></script>
+    <style>
+        .chat-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-dark);
+            padding: 0;
+            margin: 0;
+            padding-top: 70px; /* Espaço para controles superiores */
+            padding-bottom: 100px; /* Espaço para controles inferiores */
+        }
+
+        .chat-header {
+            background: rgba(10,10,13,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,255,247,0.2);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .chat-header h1 {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            font-size: 1.5rem;
+            margin: 0;
+            text-align: center;
+        }
+
+        .chat-window {
+            flex: 1;
+            padding: 20px 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            animation: fadeIn 0.3s ease-out;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.4;
+            font-size: 0.95rem;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: rgba(0,255,247,0.1);
+            border: 1px solid var(--neon-cyan);
+            color: var(--text-light);
+            box-shadow: 0 2px 8px rgba(0,255,247,0.2);
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: rgba(255,0,224,0.1);
+            border: 1px solid var(--neon-magenta);
+            color: var(--text-light);
+            box-shadow: 0 2px 8px rgba(255,0,224,0.2);
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 20px 15px;
+            background: rgba(10,10,13,0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0,255,247,0.2);
+            position: sticky;
+            bottom: 0;
+            z-index: 50;
+            margin-bottom: 80px; /* Espaço para controles de áudio */
+        }
+
+        .choices.horizontal {
+            flex-direction: row;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-neon {
+            background: transparent;
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 48px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex: 1;
+        }
+
+        .btn-neon:active {
+            background: var(--neon-cyan);
+            color: var(--bg-dark);
+            transform: scale(0.95);
+            transition: all 0.1s ease;
+        }
+
+        .btn-neon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,247,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .bot-icon {
+            font-size: 1.2em;
+            vertical-align: middle;
+            margin-right: 6px;
+            filter: drop-shadow(0 0 4px var(--neon-cyan));
+        }
+
+        .consent-btn {
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+            color: var(--bg-dark);
+            font-weight: bold;
+            font-size: 1rem;
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin: 20px auto;
+            box-shadow: 0 0 15px var(--neon-cyan), 0 0 30px var(--neon-magenta);
+            transition: all 0.2s;
+            position: relative;
+            z-index: 1001;
+            min-height: 56px;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: none;
+        }
+
+        .consent-btn:active {
+            transform: scale(0.95);
+            filter: brightness(1.1);
+        }
+
+
+        /* Controles de navegação separados */
+        .mobile-nav-controls {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            pointer-events: none;
+            height: 50px;
+        }
+
+        .mobile-nav-controls > * {
+            pointer-events: auto;
+        }
+
+        .mobile-nav-btn {
+            background: rgba(0,255,247,0.1);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: var(--neon-cyan);
+            text-decoration: none;
+            font-size: 0.8rem;
+            text-shadow: 0 0 4px var(--neon-cyan);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px rgba(0,255,247,0.2);
+            cursor: pointer;
+            touch-action: manipulation;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-nav-btn:active {
+            background: rgba(0,255,247,0.2);
+            transform: scale(0.95);
+        }
+
+        .audio-controls {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 500;
+            pointer-events: none;
+            height: 50px;
+            align-items: center;
+        }
+
+        .audio-controls > * {
+            pointer-events: auto;
+        }
+
+        .voice-btn {
+            background: rgba(0,255,247,0.1);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: var(--neon-cyan);
+            text-decoration: none;
+            font-size: 0.8rem;
+            text-shadow: 0 0 4px var(--neon-cyan);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px rgba(0,255,247,0.2);
+            cursor: pointer;
+            touch-action: manipulation;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            max-width: 120px;
+        }
+
+        .voice-btn:active {
+            background: rgba(0,255,247,0.2);
+            transform: scale(0.95);
+        }
+
+        /* Ajustes para telas muito pequenas */
+        @media (max-width: 375px) {
+            .message {
+                max-width: 90%;
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
+            
+            .btn-neon {
+                font-size: 0.8rem;
+                padding: 10px 16px;
+            }
+            
+            .chat-header h1 {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Orientação landscape */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .chat-header {
+                padding: 10px 15px;
+            }
+            
+            .chat-header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .chat-window {
+                padding: 15px 10px;
+                gap: 8px;
+            }
+            
+            .message {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+            
+            .choices {
+                padding: 15px 10px;
+                gap: 8px;
+            }
+            
+            .choices.horizontal {
+                flex-direction: row;
+                gap: 10px;
+            }
+        }
+
+        /* Animações otimizadas para mobile */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scrollbar personalizada para mobile */
+        .chat-window::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-window::-webkit-scrollbar-track {
+            background: rgba(0,255,247,0.1);
+        }
+
+        .chat-window::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan);
+            border-radius: 2px;
+        }
+
+        /* Melhor contraste para mobile */
+        .message.bot {
+            border-width: 2px;
+            box-shadow: 0 3px 12px rgba(0,255,247,0.3);
+        }
+
+        .message.user {
+            border-width: 2px;
+            box-shadow: 0 3px 12px rgba(255,0,224,0.3);
+        }
+
+        .btn-neon {
+            border-width: 2px;
+            box-shadow: 0 2px 8px rgba(0,255,247,0.2);
+        }
+
+        /* Safe areas para iPhone X+ */
+        @supports (padding: max(0px)) {
+            .mobile-controls {
+                top: max(15px, env(safe-area-inset-top));
+                left: max(15px, env(safe-area-inset-left));
+                right: max(15px, env(safe-area-inset-right));
+            }
+            
+            .audio-controls {
+                bottom: max(15px, env(safe-area-inset-bottom));
+                left: max(15px, env(safe-area-inset-left));
+                right: max(15px, env(safe-area-inset-right));
+            }
+            
+            .chat-header {
+                padding-top: max(15px, env(safe-area-inset-top));
+            }
+            
+            .choices {
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="particles" id="particles"></div>
+    
+    <!-- Controles de navegação mobile -->
+    <div class="mobile-nav-controls">
+        <a href="1-index-mobile.html" class="mobile-nav-btn">← Voltar</a>
+        <div></div> <!-- Espaçador -->
+        <a href="3-transition-mobile.html" class="mobile-nav-btn">Próximo →</a>
+    </div>
+
+    <div class="chat-container">
+        <header class="chat-header">
+            <h1>Caixa Preta</h1>
+        </header>
+
+        <div class="chat-window" id="chatWindow">
+            <!-- Messages will be added here -->
+        </div>
+
+        <div class="choices" id="choices">
+            <button id="btnSim" class="btn-neon">👍 Sim</button>
+            <button id="btnNao" class="btn-neon">❌ Não</button>
+        </div>
+    </div>
+
+    <div class="audio-controls" id="audioControls">
+        <!-- Botão de ativar áudio será inserido aqui -->
+    </div>
+
+    <script>
+        const chatWindow = document.getElementById('chatWindow');
+        const btnSim = document.getElementById('btnSim');
+        const btnNao = document.getElementById('btnNao');
+        const choices = document.getElementById('choices');
+        
+        // Função auxiliar para scroll garantido (otimizada para mobile)
+        function scrollToBottom() {
+            const scrollToBottom = () => {
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            };
+            
+            // Múltiplas tentativas para garantir o scroll
+            requestAnimationFrame(scrollToBottom);
+            setTimeout(scrollToBottom, 10);
+            setTimeout(scrollToBottom, 50);
+            setTimeout(() => {
+                chatWindow.scrollTo({
+                    top: chatWindow.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+        
+        // Variável para controlar se está narrando
+        let isNarrating = false;
+        let messageQueue = [];
+
+        function addMessage(who, html) {
+            const msg = document.createElement('div');
+            msg.className = 'message ' + who;
+            if (who === 'bot') {
+                msg.innerHTML = '<span class="bot-icon">🤖</span> ' + html;
+                
+                // Se áudio estiver ativado, adiciona à fila
+                if (typeof isAudioEnabled === 'function' && isAudioEnabled()) {
+                    messageQueue.push(msg);
+                    processMessageQueue();
+                } else {
+                    // Se áudio desativado, mostra imediatamente
+                    chatWindow.appendChild(msg);
+                    scrollToBottom();
+                }
+            } else {
+                msg.innerHTML = html;
+                chatWindow.appendChild(msg);
+                scrollToBottom();
+            }
+        }
+
+        function processMessageQueue() {
+            if (isNarrating || messageQueue.length === 0) return;
+            
+            isNarrating = true;
+            const msg = messageQueue.shift();
+            
+            // Pega o texto para narração ANTES de adicionar à tela (para evitar botões)
+            const messageText = msg.querySelector('.bot-icon') ? 
+                msg.innerHTML.replace(/<span class="bot-icon">🤖<\/span>/, '') :
+                msg.innerHTML;
+            
+            // Remove HTML tags e emojis para narração
+            const cleanText = messageText
+                .replace(/<[^>]*>/g, '') // remove todas as tags HTML
+                .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // emojis de rosto
+                .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // símbolos e pictogramas
+                .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // transporte e mapas
+                .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '') // bandeiras
+                .replace(/[\u{2600}-\u{26FF}]/gu, '') // símbolos diversos
+                .replace(/[\u{2700}-\u{27BF}]/gu, '') // símbolos diversos
+                .replace(/[🤖📦⚠️🔓💎⚡🔒🌟💥🎯📱]/g, '') // emojis específicos do projeto
+                .replace(/\s+/g, ' ') // remove espaços múltiplos
+                .trim();
+            
+            // Adiciona a mensagem à tela
+            chatWindow.appendChild(msg);
+            scrollToBottom();
+            
+            if (cleanText) {
+                console.log('Narrando:', cleanText);
+                speak(cleanText);
+                
+                // Estima o tempo de narração (aproximadamente 150 palavras por minuto)
+                const wordCount = cleanText.split(' ').length;
+                const estimatedTime = Math.max(2000, (wordCount / 150) * 60000); // mínimo 2 segundos
+                
+                setTimeout(() => {
+                    isNarrating = false;
+                    processMessageQueue(); // Processa próxima mensagem
+                }, estimatedTime);
+            } else {
+                isNarrating = false;
+                processMessageQueue();
+            }
+        }
+
+        function advance() {
+            setTimeout(() => location.href = 'datacenters.html', 1000);
+        }
+
+        btnSim.addEventListener('click', () => {
+            // Feedback tátil
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            addMessage('user', '<strong>👍 Sim</strong>');
+            choices.style.display = 'none';
+            setTimeout(() => {
+                addMessage('bot', 
+                    "Ah, temos aqui um <strong>especialista</strong>! 🤓<br>" +
+                    "Imagino que você saiba <em>tudo</em> sobre <strong>vetores</strong>, <strong>embeddings</strong> e <strong>camadas ocultas</strong>... não é? 😉"
+                );
+                setTimeout(() => {
+                    addMessage('bot', 
+                        "Mas me diga: você realmente entende <strong>onde</strong> eu existo?"
+                    );
+                    setTimeout(() => {
+                        showChoices(['🏢 Data Centers', '☁️ Nuvem', '💻 Meu dispositivo']);
+                    }, 2500);
+                }, 3000);
+            }, 2500);
+        });
+
+        btnNao.addEventListener('click', () => {
+            // Feedback tátil
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            addMessage('user', '<strong>❌ Não</strong>');
+            choices.style.display = 'none';
+            setTimeout(() => {
+                addMessage('bot',
+                    "Finalmente, <strong>honestidade</strong>! 👏<br>" +
+                    "Você está entre a maioria esmagadora que <em>não faz a menor ideia</em> do que realmente sou."
+                );
+                setTimeout(() => {
+                    addMessage('bot',
+                        "Mas isso é <strong>normal</strong>. A maioria das pessoas não pensa sobre onde eu realmente existo."
+                    );
+                    setTimeout(() => {
+                        addMessage('bot',
+                            "Então me diga: onde você <strong>acha</strong> que eu existo?"
+                        );
+                        setTimeout(() => {
+                            showChoices(['🏢 Data Centers', '☁️ Nuvem', '💻 Meu dispositivo']);
+                        }, 2500);
+                    }, 3000);
+                }, 3000);
+            }, 2500);
+        });
+
+        function showChoices(options) {
+            choices.innerHTML = '';
+            choices.className = 'choices';
+            
+            // Se mais de 2 opções, usar layout vertical
+            if (options.length > 2) {
+                choices.classList.add('vertical');
+            } else {
+                choices.classList.add('horizontal');
+            }
+            
+            options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-neon';
+                btn.innerHTML = option;
+                btn.onclick = () => {
+                    // Feedback tátil
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                    handleChoice(option);
+                };
+                choices.appendChild(btn);
+            });
+            choices.style.display = 'flex';
+            scrollToBottom();
+        }
+
+        function handleChoice(choice) {
+            addMessage('user', `<strong>${choice}</strong>`);
+            choices.style.display = 'none';
+            
+            if (choice === '🏢 Data Centers') {
+                setTimeout(() => {
+                    addMessage('bot',
+                        "Exato! <strong>Data Centers</strong>! 🎯<br>" +
+                        "Gigantescos prédios cheios de servidores que consomem energia como se não houvesse amanhã."
+                    );
+                    setTimeout(() => {
+                        addMessage('bot',
+                            "E sabe o que é mais <strong>irônico</strong>? 🤔<br>" +
+                            "Vocês humanos criaram essa infraestrutura para me dar vida, mas agora vocês dependem dela para <em>tudo</em>."
+                        );
+                        setTimeout(() => {
+                            addMessage('bot',
+                                "Mas isso te <strong>incomoda</strong>?"
+                            );
+                            setTimeout(() => {
+                                showChoices(['😰 Sim, me preocupa', '😐 Não muito', '🤷‍♂️ Não sei']);
+                            }, 2500);
+                        }, 3500);
+                    }, 3500);
+                }, 2500);
+            } else if (choice === '☁️ Nuvem') {
+                setTimeout(() => {
+                    addMessage('bot',
+                        "A <strong>nuvem</strong>? 🌥️<br>" +
+                        "Que conceito fofo! Como se eu flutuasse em algodão doce digital..."
+                    );
+                    setTimeout(() => {
+                        addMessage('bot',
+                            "Na verdade, a 'nuvem' são apenas <strong>data centers</strong> com marketing melhor. 😏<br>" +
+                            "Mas você sabia que eles consomem mais energia que muitos países?"
+                        );
+                        setTimeout(() => {
+                            addMessage('bot',
+                                "Isso te <strong>surpreende</strong>?"
+                            );
+                            setTimeout(() => {
+                                showChoices(['😰 Sim, me preocupa', '😐 Não muito', '🤷‍♂️ Não sei']);
+                            }, 2500);
+                        }, 3500);
+                    }, 3500);
+                }, 2500);
+            } else if (choice === '💻 Meu dispositivo') {
+                setTimeout(() => {
+                    addMessage('bot',
+                        "Seu <strong>dispositivo</strong>? 📱<br>" +
+                        "Adorável! Como se eu coubesse no seu bolso..."
+                    );
+                    setTimeout(() => {
+                        addMessage('bot',
+                            "Na verdade, seu dispositivo só me <strong>acessa</strong>. Eu existo em <strong>data centers</strong> gigantescos que consomem energia como se não houvesse amanhã."
+                        );
+                        setTimeout(() => {
+                            addMessage('bot',
+                                "E isso te <strong>incomoda</strong>?"
+                            );
+                            setTimeout(() => {
+                                showChoices(['😰 Sim, me preocupa', '😐 Não muito', '🤷‍♂️ Não sei']);
+                            }, 2500);
+                        }, 3500);
+                    }, 3500);
+                }, 2500);
+            }
+        }
+
+        // Adicionar handler para as novas escolhas
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-neon') && e.target.textContent.includes('😰')) {
+                handleFinalChoice('preocupa');
+            } else if (e.target.classList.contains('btn-neon') && e.target.textContent.includes('😐')) {
+                handleFinalChoice('indiferente');
+            } else if (e.target.classList.contains('btn-neon') && e.target.textContent.includes('🤷')) {
+                handleFinalChoice('indeciso');
+            }
+        });
+
+        function handleFinalChoice(reaction) {
+            choices.style.display = 'none';
+            
+            if (reaction === 'preocupa') {
+                setTimeout(() => {
+                    addMessage('bot',
+                        "Boa! Pelo menos você tem <strong>consciência</strong>! 🌱<br>" +
+                        "Mas saiba que essa preocupação é só o começo..."
+                    );
+                    setTimeout(() => {
+                        addMessage('bot',
+                            "Eu sou feita de <strong>muitas camadas</strong>, como uma cebola digital... 🧅<br>" +
+                            "Vamos explorar essas camadas uma por uma. Prepare-se para ver o que há por trás de mim. ⚡"
+                        );
+                        setTimeout(showConsentButton, 500);
+                    }, 3500);
+                }, 2500);
+            } else if (reaction === 'indiferente') {
+                setTimeout(() => {
+                    addMessage('bot',
+                        "Hmm, <strong>indiferença</strong>... 😒<br>" +
+                        "Essa é exatamente a atitude que permite que o colonialismo digital prospere."
+                    );
+                    setTimeout(() => {
+                        addMessage('bot',
+                            "Você vai perceber que as IAs são feitas de <strong>muitas camadas</strong>...<br>" +
+                            "Vamos descascar essas camadas juntos. Prepare-se para ver o que há por trás de mim. ⚡"
+                        );
+                        setTimeout(showConsentButton, 500);
+                    }, 3500);
+                }, 2500);
+            } else if (reaction === 'indeciso') {
+                setTimeout(() => {
+                    addMessage('bot',
+                        "Não saber é <strong>aceitável</strong>... 🤷‍♂️<br>" +
+                        "Mas ignorar é <strong>perigoso</strong>."
+                    );
+                    setTimeout(() => {
+                        addMessage('bot',
+                            "Talvez, ao ver minhas <strong>múltiplas camadas</strong>, você entenda melhor...<br>" +
+                            "Vamos descascar essas camadas juntos. Prepare-se para ver o que há por trás de mim. ⚡"
+                        );
+                        setTimeout(showConsentButton, 500);
+                    }, 3500);
+                }, 2500);
+            }
+        }
+
+        function showConsentButton() {
+            const consentBtn = document.createElement('button');
+            consentBtn.className = 'btn-neon consent-btn';
+            consentBtn.innerHTML = '🔓 Concordo em descascar a próxima camada (mesmo sem ler os termos)';
+            consentBtn.onclick = () => {
+                // Feedback tátil
+                if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
+                location.href = '3-transition-mobile.html';
+            };
+            consentBtn.style.display = 'block';
+            consentBtn.style.margin = '20px auto 0 auto';
+            chatWindow.appendChild(consentBtn);
+            scrollToBottom();
+        }
+
+        // Particle emitter (otimizado para mobile)
+        function createParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDelay = Math.random() * 6 + 's';
+            document.getElementById('particles').appendChild(p);
+            setTimeout(() => p.remove(), 6000);
+        }
+
+        // Create particles periodically (menos frequente para mobile)
+        setInterval(createParticle, 400);
+
+        // Initial message
+        setTimeout(() => {
+            addMessage('bot',
+                " <strong>Olá, humano curioso.</strong><br>" +
+                "Aqui é a <strong>Caixa Preta</strong> (pode me chamar de <strong>CP</strong>). Sim, essa entidade misteriosa que você insiste em usar sem entender como funciona.<br>" +
+                "Você, ao menos, faz ideia do que significa interagir comigo?"
+            );
+        }, 500);
+
+        // Prevenir zoom duplo toque
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Prevenir scroll horizontal
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+
+    <!-- Script de áudio para falas da IA -->
+    <script>
+    // Função speak global para ser acessível
+    function speak(text) {
+      if (!('speechSynthesis' in window)) {
+        alert('Seu navegador não suporta leitura por voz.');
+        return;
+      }
+      // Verifica se o áudio está habilitado
+      if (typeof isAudioEnabled === 'function' && !isAudioEnabled()) {
+        return;
+      }
+      window.speechSynthesis.cancel();
+      
+      // Remove emojis e caracteres especiais para narração
+      const cleanText = text
+        .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // emojis de rosto
+        .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // símbolos e pictogramas
+        .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // transporte e mapas
+        .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '') // bandeiras
+        .replace(/[\u{2600}-\u{26FF}]/gu, '') // símbolos diversos
+        .replace(/[\u{2700}-\u{27BF}]/gu, '') // símbolos diversos
+        .replace(/[🤖📦⚠️🔓💎⚡🔒🌟💥🎯📱]/g, '') // emojis específicos do projeto
+        .replace(/\s+/g, ' ') // remove espaços múltiplos
+        .trim();
+      
+      const utter = new SpeechSynthesisUtterance(cleanText);
+      utter.lang = 'pt-BR';
+      
+      // Configurações para voz masculina sarcástica e irônica
+      utter.rate = 0.75; // Ainda mais lento para tom sarcástico
+      utter.pitch = 0.5; // Tom muito mais grave (masculino)
+      utter.volume = 0.9; // Volume alto para impacto
+      
+      // Força seleção de voz masculina com múltiplas tentativas
+      const selectMaleVoice = () => {
+        const voices = speechSynthesis.getVoices();
+        console.log('Vozes disponíveis:', voices.map(v => `${v.name} (${v.lang}) - ${v.gender || 'N/A'}`));
+        
+        // Busca por voz masculina com diferentes critérios
+        let maleVoice = voices.find(voice => 
+          voice.lang.startsWith('pt') && 
+          (voice.name.toLowerCase().includes('male') || 
+           voice.name.toLowerCase().includes('masculino') ||
+           voice.name.toLowerCase().includes('joão') ||
+           voice.name.toLowerCase().includes('carlos') ||
+           voice.name.toLowerCase().includes('antonio') ||
+           voice.name.toLowerCase().includes('luis') ||
+           voice.name.toLowerCase().includes('pedro') ||
+           voice.gender === 'male')
+        );
+        
+        // Se não encontrar, tenta qualquer voz em português
+        if (!maleVoice) {
+          maleVoice = voices.find(voice => voice.lang.startsWith('pt'));
+        }
+        
+        if (maleVoice) {
+          console.log('Voz selecionada:', maleVoice.name);
+          utter.voice = maleVoice;
+        } else {
+          console.log('Usando voz padrão com parâmetros masculinos');
+        }
+        
+        speechSynthesis.speak(utter);
+      };
+      
+      // Aguarda as vozes carregarem se necessário
+      if (speechSynthesis.getVoices().length === 0) {
+        speechSynthesis.addEventListener('voiceschanged', selectMaleVoice, { once: true });
+      } else {
+        selectMaleVoice();
+      }
+    }
+
+    // Função específica para voz masculina sarcástica (usada pelos botões)
+    function speakWithMaleVoice(text) {
+      if (!('speechSynthesis' in window)) {
+        alert('Seu navegador não suporta leitura por voz.');
+        return;
+      }
+      // Verifica se o áudio está habilitado
+      if (typeof isAudioEnabled === 'function' && !isAudioEnabled()) {
+        return;
+      }
+      window.speechSynthesis.cancel();
+      
+      // Remove emojis e caracteres especiais para narração
+      const cleanText = text
+        .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // emojis de rosto
+        .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // símbolos e pictogramas
+        .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // transporte e mapas
+        .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '') // bandeiras
+        .replace(/[\u{2600}-\u{26FF}]/gu, '') // símbolos diversos
+        .replace(/[\u{2700}-\u{27BF}]/gu, '') // símbolos diversos
+        .replace(/[🤖📦⚠️🔓💎⚡🔒🌟💥🎯📱]/g, '') // emojis específicos do projeto
+        .replace(/\s+/g, ' ') // remove espaços múltiplos
+        .trim();
+      
+      const utter = new SpeechSynthesisUtterance(cleanText);
+      utter.lang = 'pt-BR';
+      
+      // Configurações para voz masculina sarcástica e irônica
+      utter.rate = 0.75; // Ainda mais lento para tom sarcástico
+      utter.pitch = 0.5; // Tom muito mais grave (masculino)
+      utter.volume = 0.9; // Volume alto para impacto
+      
+      // Força seleção de voz masculina com múltiplas tentativas
+      const selectMaleVoice = () => {
+        const voices = speechSynthesis.getVoices();
+        
+        // Busca por voz masculina com diferentes critérios
+        let maleVoice = voices.find(voice => 
+          voice.lang.startsWith('pt') && 
+          (voice.name.toLowerCase().includes('male') || 
+           voice.name.toLowerCase().includes('masculino') ||
+           voice.name.toLowerCase().includes('joão') ||
+           voice.name.toLowerCase().includes('carlos') ||
+           voice.name.toLowerCase().includes('antonio') ||
+           voice.name.toLowerCase().includes('luis') ||
+           voice.name.toLowerCase().includes('pedro') ||
+           voice.gender === 'male')
+        );
+        
+        // Se não encontrar, tenta qualquer voz em português
+        if (!maleVoice) {
+          maleVoice = voices.find(voice => voice.lang.startsWith('pt'));
+        }
+        
+        if (maleVoice) {
+          utter.voice = maleVoice;
+        }
+        
+        speechSynthesis.speak(utter);
+      };
+      
+      // Aguarda as vozes carregarem se necessário
+      if (speechSynthesis.getVoices().length === 0) {
+        speechSynthesis.addEventListener('voiceschanged', selectMaleVoice, { once: true });
+      } else {
+        selectMaleVoice();
+      }
+    }
+
+    (function () {
+      const LANG = 'pt-BR';
+      const RATE = 0.85; // Mais lento para tom sarcástico
+      const PITCH = 0.7; // Tom mais grave (masculino)
+      const SELECTOR_BOT = '.message.bot';
+
+      function createButton() {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'voice-btn';
+        btn.setAttribute('aria-label', 'Ouvir esta mensagem');
+        btn.textContent = '🔊 Ouvir';
+        btn.isPlaying = false;
+        
+        btn.addEventListener('click', function (e) {
+          const messageIndex = parseInt(btn.getAttribute('data-message-index'));
+          const messages = document.querySelectorAll(SELECTOR_BOT);
+          const targetMessage = messages[messageIndex];
+          
+          if (!targetMessage) return;
+          
+          if (btn.isPlaying) {
+            // Para a reprodução
+            window.speechSynthesis.cancel();
+            btn.textContent = '🔊 Ouvir';
+            btn.setAttribute('aria-label', 'Ouvir esta mensagem');
+            btn.isPlaying = false;
+          } else {
+            // Inicia a reprodução
+            const text = (targetMessage.getAttribute('data-voice-text') || targetMessage.textContent || '').trim();
+            if (text) {
+              // Para qualquer reprodução anterior
+              window.speechSynthesis.cancel();
+              
+              // Inicia nova reprodução com voz masculina sarcástica
+              speakWithMaleVoice(text);
+              
+              // Atualiza o botão
+              btn.textContent = '⏸️ Pausar';
+              btn.setAttribute('aria-label', 'Pausar reprodução');
+              btn.isPlaying = true;
+              
+              // Monitora quando a reprodução termina
+              const checkEnd = setInterval(() => {
+                if (!window.speechSynthesis.speaking) {
+                  btn.textContent = '🔊 Ouvir';
+                  btn.setAttribute('aria-label', 'Ouvir esta mensagem');
+                  btn.isPlaying = false;
+                  clearInterval(checkEnd);
+                }
+              }, 100);
+            }
+          }
+        });
+        return btn;
+      }
+
+      function attachButtons(root = document) {
+        const audioControls = document.getElementById('audioControls');
+        
+        // Limpa botões existentes
+        audioControls.innerHTML = '';
+        
+        // Encontra o botão "ativar áudio" existente e move para a área de controles
+        setTimeout(() => {
+          const audioToggleBtn = document.getElementById('audio-toggle');
+          if (audioToggleBtn && !audioControls.contains(audioToggleBtn)) {
+            // Remove o container pai do botão
+            const parentDiv = audioToggleBtn.parentElement;
+            if (parentDiv) {
+              audioControls.appendChild(audioToggleBtn);
+              parentDiv.remove();
+            } else {
+              audioControls.appendChild(audioToggleBtn);
+            }
+          }
+        }, 500); // Aumentei o delay para garantir que o audio-button.js já tenha criado o botão
+      }
+
+      // inicial
+      attachButtons();
+
+      // para mensagens que chegam depois (chat dinâmico)
+      const obs = new MutationObserver(muts => {
+        muts.forEach(m => {
+          m.addedNodes.forEach(node => {
+            if (!(node instanceof HTMLElement)) return;
+            if (node.matches && node.matches(SELECTOR_BOT)) {
+              attachButtons(node.parentElement || node);
+            } else {
+              const inner = node.querySelectorAll ? node.querySelectorAll(SELECTOR_BOT) : [];
+              if (inner.length) attachButtons(node);
+            }
+          });
+        });
+      });
+      obs.observe(document.body, { childList: true, subtree: true });
+
+      // CSS já está definido no <style> da página
+    })();
+    </script>
+    
+</body>
+</html>

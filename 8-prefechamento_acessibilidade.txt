@@ -1,0 +1,21 @@
+CAIXA PRETA
+
+Você explorou apenas a primeira versão deste projeto.
+
+Versão 1.0 - outubro de 2025
+Esta é apenas uma introdução ao universo complexo das Inteligências Artificiais. 
+Cada IA tem suas próprias camadas, seus próprios segredos, suas próprias limitações.
+
+🤖 IAs Generativas
+GPT, Claude, Gemini... cada uma com sua arquitetura única, seus vieses, suas capacidades ocultas. Estas IAs são treinadas com bilhões de textos para gerar conteúdo novo: desde conversas até código, imagens e vídeos. Mas por trás de cada resposta há algoritmos complexos que determinam não apenas o que elas podem dizer, mas também o que elas nunca vão revelar. Cada modelo reflete os dados com os quais foi alimentado, carregando os preconceitos, limitações e escolhas ideológicas de seus criadores.
+
+Controles de navegação:
+- Voltar: Retorna à página anterior (7-quarta-camada.html)
+- Próximo: Avança para a próxima página (9-vibe-coding-desprogramativo.html)
+
+Easter egg: Clique na palavra "Versão" para descobrir uma mensagem especial sobre o desenvolvimento do projeto.
+
+Sistema de áudio:
+- Botão "🔊 Ativar áudio" no canto superior direito para controlar todos os sons
+- Botões "🔊 Ouvir" em mensagens para narração automática
+- Sons param automaticamente ao navegar entre páginas

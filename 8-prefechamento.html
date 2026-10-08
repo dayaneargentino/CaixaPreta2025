@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caixa Preta – Pré-Fechamento</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="audio-manager.js"></script>
+    <script src="audio-button.js"></script>
+    <style>
+    body {
+      background: var(--bg-dark);
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      color: var(--text-light);
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 95%;
+      margin: 0 auto;
+      padding: 40px 20px 60px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .glass-block {
+      background: rgba(27,27,31,0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      padding: 40px 35px;
+      margin-bottom: 32px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 2.8rem;
+      color: var(--neon-magenta);
+      text-shadow: 0 0 18px var(--neon-magenta), 0 0 32px #7f5fff;
+      margin-bottom: 25px;
+      letter-spacing: 0.15em;
+      font-weight: bold;
+    }
+    
+    .intro-text {
+      font-size: 1.3rem;
+      line-height: 1.7;
+      margin-bottom: 30px;
+      color: var(--text-light);
+    }
+    
+    .highlight {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px var(--neon-cyan);
+      font-weight: bold;
+    }
+    
+    .version-info {
+      background: linear-gradient(90deg, rgba(0,255,247,0.1) 0%, rgba(255,0,224,0.1) 100%);
+      border: 2px solid var(--neon-cyan);
+      border-radius: 14px;
+      padding: 25px;
+      margin: 30px 0;
+      box-shadow: 0 0 20px rgba(0,255,247,0.2);
+    }
+    
+    .version-title {
+      font-size: 1.5rem;
+      color: var(--neon-yellow);
+      text-shadow: 0 0 12px var(--neon-yellow);
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+    
+    .version-text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--text-light);
+    }
+    
+    .layers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    
+    .layer-card {
+      background: rgba(255,0,224,0.08);
+      border: 1.5px solid var(--neon-magenta);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+      box-shadow: 0 0 15px rgba(255,0,224,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .layer-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 25px rgba(255,0,224,0.4);
+    }
+    
+    .layer-title {
+      font-size: 1.2rem;
+      color: var(--neon-magenta);
+      text-shadow: 0 0 8px var(--neon-magenta);
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .layer-desc {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: var(--text-light);
+    }
+    
+    .reflexao-final {
+      background: linear-gradient(90deg, rgba(255,0,224,0.13) 0%, rgba(255,255,255,0.10) 100%);
+      border: 2.5px solid var(--neon-yellow);
+      color: var(--neon-yellow);
+      box-shadow: 0 0 32px 4px var(--neon-yellow, #FFEA00), 0 0 8px var(--neon-magenta, #FF00E0);
+      border-radius: 18px;
+      padding: 30px 35px;
+      margin-top: 30px;
+      font-size: 1.3rem;
+      text-align: center;
+      letter-spacing: 0.02em;
+      text-shadow: 0 0 12px var(--neon-yellow), 0 0 4px var(--neon-magenta);
+      font-style: italic;
+    }
+    
+    .navegacao {
+      position: fixed;
+      right: 3vw;
+      bottom: 3vh;
+      display: flex;
+      flex-direction: row;
+      gap: 18px;
+      z-index: 9999;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 15px 40px 15px;
+      }
+      
+      h1 {
+        font-size: 2.2rem;
+      }
+      
+      .intro-text {
+        font-size: 1.1rem;
+      }
+      
+      .version-text {
+        font-size: 1rem;
+      }
+      
+      .layers-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .glass-block {
+        padding: 25px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="scanlines"></div>
+  <div class="particles" id="particles"></div>
+  
+  <div class="container">
+    <div class="glass-block">
+      <h1>CAIXA PRETA</h1>
+      <div class="intro-text">
+        Você explorou apenas a <span class="highlight">primeira versão</span> deste projeto.
+      </div>
+      
+      <div class="version-info">
+        <div class="version-title">Versão 1.0 - outubro de 2025</div>
+        <div class="version-text">
+          Esta é apenas uma introdução ao universo complexo das Inteligências Artificiais. 
+          Cada IA tem suas próprias camadas, seus próprios segredos, suas próprias limitações.
+        </div>
+      </div>
+      
+      <div class="layers-grid">
+        <div class="layer-card">
+          <div class="layer-title">🤖 IAs Generativas</div>
+          <div class="layer-desc">
+            GPT, Claude, Gemini... cada uma com sua arquitetura única, seus vieses, suas capacidades ocultas. Estas IAs são treinadas com bilhões de textos para gerar conteúdo novo: desde conversas até código, imagens e vídeos. Mas por trás de cada resposta há algoritmos complexos que determinam não apenas o que elas podem dizer, mas também o que elas nunca vão revelar. Cada modelo reflete os dados com os quais foi alimentado, carregando os preconceitos, limitações e escolhas ideológicas de seus criadores.
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div class="navegacao">
+    <a href="7-quarta-camada.html" class="btn-neon">Voltar</a>
+    <a href="9-vibe-coding-desprogramativo.html" class="btn-neon">Próximo</a>
+  </div>
+  
+  <script>
+    // Partículas neon
+    function createParticle() {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.animationDelay = Math.random() * 6 + 's';
+      document.getElementById('particles').appendChild(p);
+      setTimeout(() => p.remove(), 6000);
+    }
+    setInterval(createParticle, 400);
+  </script>
+</body>
+</html>

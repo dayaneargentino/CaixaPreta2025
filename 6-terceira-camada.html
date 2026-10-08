@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>O Combustível Invisível – Terceira Camada</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="audio-manager.js"></script>
+    <script src="audio-button.js"></script>
+    <style>
+    body {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Courier New', monospace;
+    }
+    .container {
+      max-width: 95%;
+      margin: 0 auto;
+      padding: 40px 20px 60px 20px;
+    }
+    .glass-block {
+      background: rgba(27,27,31,0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      padding: 32px 28px;
+      margin-bottom: 32px;
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: var(--neon-magenta);
+      text-shadow: 0 0 12px var(--neon-magenta);
+      margin-bottom: 18px;
+    }
+    .bullets {
+      margin: 18px 0 18px 0;
+      padding-left: 18px;
+    }
+    .bullets li {
+      margin-bottom: 8px;
+      font-size: 1.08rem;
+      list-style: disc;
+    }
+    .reflexao {
+      font-style: italic;
+      color: var(--neon-yellow);
+      margin: 18px 0 0 0;
+      font-size: 1.1rem;
+    }
+    .timeline-area {
+      margin: 40px 0 30px 0;
+      background: rgba(0,255,247,0.04);
+      border-radius: 18px;
+      box-shadow: 0 0 18px var(--neon-cyan, #00FFF7);
+      padding: 24px 18px;
+      position: relative;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .timeline-form {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    .timeline-form select {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1.5px solid var(--neon-cyan);
+      background: rgba(0,255,247,0.07);
+      color: var(--text-light);
+      font-size: 1.05rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .timeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .timeline-step {
+      background: rgba(255,255,255,0.08);
+      border: 2px solid var(--neon-magenta);
+      border-radius: 14px;
+      padding: 18px 22px;
+      color: var(--neon-magenta);
+      font-size: 1.05rem;
+      box-shadow: 0 0 12px var(--neon-magenta, #FF00E0);
+      min-width: 120px;
+      text-align: center;
+      position: relative;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    .timeline-arrow {
+      font-size: 2rem;
+      color: var(--neon-yellow);
+      margin: 0 8px;
+      user-select: none;
+    }
+    .grafico-area {
+      margin: 40px 0 30px 0;
+      background: rgba(255,0,224,0.04);
+      border-radius: 18px;
+      box-shadow: 0 0 18px var(--neon-magenta, #FF00E0);
+      padding: 24px 18px;
+      text-align: center;
+    }
+    .grafico-label {
+      color: var(--neon-cyan);
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+    .grafico-count {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: var(--neon-yellow);
+      text-shadow: 0 0 12px var(--neon-yellow);
+      margin: 10px 0 0 0;
+    }
+    .quiz-area {
+      margin: 40px 0 30px 0;
+      background: rgba(255,234,0,0.04);
+      border-radius: 18px;
+      box-shadow: 0 0 18px var(--neon-yellow, #FFEA00);
+      padding: 24px 18px;
+      text-align: center;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .quiz-label {
+      color: var(--neon-magenta);
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+    .quiz-options {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      margin: 18px 0;
+      flex-wrap: wrap;
+    }
+    .quiz-btn {
+      background: linear-gradient(45deg, var(--neon-cyan), var(--neon-yellow));
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 15px 20px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.2s;
+      box-shadow: 0 0 10px var(--neon-cyan, #00FFF7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 50px;
+    }
+    
+    .quiz-btn .emoji {
+      font-size: 1.5em;
+    }
+    .quiz-btn:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 0 18px var(--neon-yellow, #FFEA00);
+    }
+    .quiz-feedback {
+      color: var(--neon-magenta);
+      font-size: 1.1rem;
+      margin-top: 16px;
+      min-height: 32px;
+    }
+    .btn-next {
+      background: linear-gradient(45deg, var(--neon-magenta), var(--neon-yellow));
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 15px 30px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.2s;
+      box-shadow: 0 0 10px var(--neon-magenta, #FF00E0);
+      margin: 40px auto 0 auto;
+      display: block;
+    }
+    .btn-next:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 0 18px var(--neon-yellow, #FFEA00);
+    }
+    .dados-intro {
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      margin-bottom: 32px;
+      padding-right: 170px; /* espaço para a ilustração à direita */
+    }
+    .dados-ilustra {
+      position: absolute;
+      right: 24px;
+      top: 12px;
+      z-index: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: calc(100% - 24px);
+      justify-content: space-between;
+      gap: 0;
+    }
+    @media (max-width: 900px) {
+      .dados-intro {
+        padding-right: 24px;
+        padding-top: 120px;
+      }
+      .dados-ilustra {
+        position: static;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 12px;
+        width: 100%;
+      }
+      .dados-svg {
+        margin: 0 auto;
+        display: block;
+        width: 90px;
+        height: 60px;
+      }
+    }
+    .dados-svg .dados-bounce {
+      animation: bounceData 2.2s infinite cubic-bezier(.6,1.5,.5,1.1);
+    }
+    @keyframes bounceData {
+      0%, 100% { cy: 35; }
+      50% { cy: 25; }
+    }
+    .dados-title {
+      position: relative;
+      z-index: 1;
+      text-align: left;
+      font-size: 2.3rem;
+      color: var(--neon-magenta);
+      text-shadow: 0 0 12px var(--neon-magenta);
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+      animation: fadeInUp 1s;
+    }
+    .dados-destaques {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 18px;
+      margin-top: 8px;
+    }
+    .dados-destaques .neon-keyword {
+      font-size: 1.08rem;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px var(--neon-cyan);
+      border-bottom: 1.5px dashed var(--neon-cyan);
+      cursor: default;
+      transition: color 0.2s, filter 0.2s, border-bottom 0.2s;
+    }
+    .dados-destaques .neon-keyword:hover {
+      color: var(--neon-cyan);
+      filter: brightness(1.3) drop-shadow(0 0 8px var(--neon-cyan));
+      border-bottom: 1.5px dashed transparent;
+    }
+    .dados-cards {
+      display: flex;
+      gap: 0;
+      justify-content: center;
+      margin: 0;
+      flex-wrap: wrap;
+      z-index: 1;
+      position: relative;
+    }
+    .dados-card {
+      background: rgba(255,0,224,0.08);
+      border: 1.5px solid var(--neon-magenta);
+      border-radius: 14px;
+      box-shadow: 0 0 18px var(--neon-magenta, #FF00E0);
+      padding: 18px 18px 18px 18px;
+      min-width: 220px;
+      max-width: 340px;
+      font-size: 1.08rem;
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s forwards;
+      word-break: break-word;
+    }
+    .dados-card.animated-dado:nth-child(1) { animation-delay: 0.5s;}
+    .dados-card.animated-dado:nth-child(2) { animation-delay: 0.9s;}
+    .dados-card.animated-dado:nth-child(3) { animation-delay: 1.3s;}
+    .dados-card-icon {
+      font-size: 1.5em;
+      margin-bottom: 0;
+      filter: drop-shadow(0 0 6px var(--neon-magenta));
+    }
+    .dados-reflexao {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(90deg, rgba(255,0,224,0.13) 0%, rgba(255,255,255,0.10) 100%);
+      border: 2.5px solid var(--neon-yellow);
+      color: var(--neon-yellow);
+      box-shadow: 0 0 32px 4px var(--neon-yellow, #FFEA00), 0 0 8px var(--neon-magenta, #FF00E0);
+      border-radius: 18px;
+      padding: 28px 28px 28px 68px;
+      margin-top: 0;
+      font-size: 1.22rem;
+      display: flex;
+      align-items: center;
+      animation: reflexaoPop 1.2s 1.7s cubic-bezier(.6,1.5,.5,1.1) forwards;
+      opacity: 0;
+      letter-spacing: 0.01em;
+      text-shadow: 0 0 12px var(--neon-yellow), 0 0 4px var(--neon-magenta);
+      transition: box-shadow 0.3s, border 0.3s;
+      max-width: 100%;
+      width: 100%;
+      box-sizing: border-box;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .dados-reflexao-icon {
+      position: absolute;
+      left: 28px;
+      font-size: 2em;
+      filter: drop-shadow(0 0 10px var(--neon-yellow));
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    @keyframes reflexaoPop {
+      0% { opacity: 0; transform: scale(0.95) translateY(40px); }
+      60% { opacity: 1; transform: scale(1.04) translateY(-6px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .navegacao {
+      position: fixed;
+      right: 3vw;
+      bottom: 3vh;
+      display: flex;
+      flex-direction: row;
+      gap: 18px;
+      z-index: 9999;
+    }
+    
+    .voice-btn {
+      margin: 0;
+      padding: .4rem .8rem;
+      border: 1px solid rgba(0,255,247,.3);
+      background: rgba(0,255,247,.1);
+      color: var(--neon-cyan);
+      border-radius: .5rem;
+      cursor: pointer;
+      font-size: .9rem;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 4px var(--neon-cyan);
+    }
+    .voice-btn:hover {
+      background: rgba(0,255,247,.2);
+      border-color: var(--neon-cyan);
+      text-shadow: 0 0 8px var(--neon-cyan);
+      transform: scale(1.05);
+    }
+    .voice-btn:focus {
+      outline: 2px solid var(--neon-cyan);
+      outline-offset: 2px;
+    }
+    
+    /* Container para distribuir as caixas lado a lado */
+    .caixas-layout {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .caixa-item {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 1200px) {
+      .caixas-layout {
+        flex-direction: column;
+      }
+      .caixa-item {
+        min-width: 100%;
+      }
+    }
+    /* Adicionar estilo para as setas neon */
+    .neon-seta {
+      font-size: 1.08rem;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px var(--neon-cyan);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="glass-block dados-intro">
+      <div class="dados-ilustra">
+        <!-- Câmera animada -->
+        <svg class="dados-svg" width="120" height="80" viewBox="0 0 120 80">
+          <ellipse cx="60" cy="70" rx="50" ry="8" fill="#00FFF7" opacity="0.12"/>
+          <rect x="30" y="20" width="60" height="30" rx="8" fill="#FF00E0" opacity="0.13"/>
+          <circle class="dados-bounce" cx="60" cy="35" r="12" fill="#FFEA00" />
+          <rect x="52" y="47" width="16" height="18" rx="4" fill="#00FFF7" opacity="0.18"/>
+        </svg>
+        <!-- Dado animado -->
+        <svg class="dados-svg" width="90" height="90" viewBox="0 0 90 90">
+          <ellipse cx="45" cy="84" rx="36" ry="6" fill="#00FFF7" opacity="0.12"/>
+          <rect x="15" y="18" width="60" height="60" rx="16" fill="#FF00E0" opacity="0.13"/>
+          <rect x="25" y="28" width="40" height="40" rx="10" fill="#FFEA00" opacity="0.18"/>
+          <circle cx="45" cy="45" r="6" fill="#FFEA00">
+            <animate attributeName="cy" values="45;35;45" dur="1.7s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="32" cy="32" r="3" fill="#00FFF7"/>
+          <circle cx="58" cy="32" r="3" fill="#00FFF7"/>
+          <circle cx="32" cy="58" r="3" fill="#00FFF7"/>
+          <circle cx="58" cy="58" r="3" fill="#00FFF7"/>
+        </svg>
+        <!-- Livro animado -->
+        <svg class="dados-svg" width="70" height="70" viewBox="0 0 70 70">
+          <ellipse cx="35" cy="66" rx="28" ry="4" fill="#00FFF7" opacity="0.10"/>
+          <rect x="10" y="16" width="50" height="38" rx="8" fill="#FF00E0" opacity="0.13"/>
+          <rect x="16" y="22" width="38" height="26" rx="4" fill="#FFEA00" opacity="0.18"/>
+          <path d="M16 22 Q35 38 54 22" stroke="#00FFF7" stroke-width="2" fill="none">
+            <animate attributeName="d" values="M16 22 Q35 38 54 22;M16 22 Q35 28 54 22;M16 22 Q35 38 54 22" dur="2.2s" repeatCount="indefinite"/>
+          </path>
+        </svg>
+        <!-- Like/rede social animado -->
+        <svg class="dados-svg" width="54" height="54" viewBox="0 0 54 54">
+          <ellipse cx="27" cy="50" rx="20" ry="3.5" fill="#00FFF7" opacity="0.10"/>
+          <rect x="10" y="10" width="34" height="34" rx="10" fill="#FF00E0" opacity="0.13"/>
+          <path d="M27 38 Q22 32 17 27 Q13 23 17 19 Q21 15 27 21 Q33 15 37 19 Q41 23 37 27 Q32 32 27 38 Z" fill="#FFEA00">
+            <animateTransform attributeName="transform" type="scale" values="1;1.15;1" dur="1.5s" repeatCount="indefinite"/>
+          </path>
+          <circle cx="19" cy="23" r="2" fill="#00FFF7"/>
+          <circle cx="35" cy="23" r="2" fill="#00FFF7"/>
+        </svg>
+      </div>
+      <h1 class="dados-title">O Combustível Invisível <button id="nar-play" type="button" aria-label="Ouvir narração da página" class="voice-btn" style="margin: 0 8px; padding: 4px 8px; font-size: 0.8rem; vertical-align: middle;">🔊</button></h1>
+      <div class="dados-destaques">
+        <div class="neon-seta">→ Não há IA sem dados.</div>
+        <div class="neon-seta">→ Cada like, busca ou mensagem que você envia vira matéria-prima para treinar e refinar modelos.</div>
+        <div class="neon-seta">→ Esses “combustíveis digitais” são tão valiosos quanto petróleo: alimentam redes neurais e geram conhecimento sintético.</div>
+      </div>
+      <div class="dados-cards">
+        
+      </div>
+      <div class="reflexao dados-reflexao">
+        <span class="dados-reflexao-icon">❓</span>
+        Se seus dados fossem commodities, você estaria disposto a <a href="https://www.google.com/search?q=venda+de+dados+para+as+bigtechs&rlz=1C5CHFA_enBR1094BR1095&oq=venda+de+dados+para+as+bigtechs&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIJCAEQIRgKGKABMgkIAhAhGAoYoAHSAQg2NTcyajBqN6gCALACAA&sourceid=chrome&ie=UTF-8" target="_blank" style="color: inherit; text-decoration: none;">"vendê-los"</a>? Por quê?
+      </div>
+    </div>
+    <div class="caixas-layout">
+      <div class="caixa-item">
+        <div class="timeline-area">
+          <form class="timeline-form" id="timelineForm">
+            <label for="tipoDado">Escolha um tipo de dado:</label>
+            <select id="tipoDado">
+              <option value="busca">Histórico de busca</option>
+              <option value="social">Rede social</option>
+              <option value="localizacao">Localização</option>
+              <option value="mensagens">Mensagens</option>
+            </select>
+          </form>
+          <div class="timeline" id="timeline"></div>
+        </div>
+      </div>
+      
+      <div class="caixa-item">
+        <div class="quiz-area">
+          <div class="quiz-label">Qual desses dados você acha que vale mais?</div>
+          <div class="quiz-options">
+            <button class="quiz-btn" data-opcao="fotos"><span class="emoji">📸</span> Fotos</button>
+            <button class="quiz-btn" data-opcao="localizacao"><span class="emoji">📍</span> Localização</button>
+            <button class="quiz-btn" data-opcao="mensagens"><span class="emoji">💬</span> Mensagens</button>
+            <button class="quiz-btn" data-opcao="compras"><span class="emoji">🛒</span> Histórico de Compras</button>
+          </div>
+          <div class="quiz-feedback" id="quizFeedback"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="navegacao">
+    <a href="5-segunda-camada.html" class="btn-neon">Voltar</a>
+    <a href="7-quarta-camada.html" class="btn-neon">Próximo</a>
+  </div>
+  <script>
+    // Linha do tempo interativa
+    const timelineData = {
+      busca: [
+        'Cookies salvos',
+        'Logs de navegação',
+        'Indexação por buscadores',
+        'Perfis de interesse',
+        'Treinamento de IA'
+      ],
+      social: [
+        'Postagem/curtida',
+        'Armazenamento em servidores',
+        'Análise de engajamento',
+        'Perfilamento de preferências',
+        'Treinamento de IA'
+      ],
+      localizacao: [
+        'GPS ativado',
+        'Registro em apps',
+        'Mapeamento de rotas',
+        'Venda para anunciantes',
+        'Treinamento de IA'
+      ],
+      mensagens: [
+        'Envio/recebimento',
+        'Armazenamento em nuvem',
+        'Análise de conteúdo',
+        'Criação de perfil linguístico',
+        'Treinamento de IA'
+      ]
+    };
+    const timelineForm = document.getElementById('timelineForm');
+    const tipoDado = document.getElementById('tipoDado');
+    const timeline = document.getElementById('timeline');
+    function renderTimeline(tipo) {
+      timeline.innerHTML = '';
+      
+      // Links da Wikipedia para conceitos específicos
+      const wikipediaLinks = {
+        'Cookies salvos': 'https://pt.wikipedia.org/wiki/Cookie_HTTP',
+        'Logs de navegação': 'https://pt.wikipedia.org/wiki/Log_de_dados',
+        'Indexação por buscadores': 'https://pt.wikipedia.org/wiki/Indexação_web',
+        'Perfis de interesse': 'https://pt.wikipedia.org/wiki/Perfilamento_de_usuário',
+        'Treinamento de IA': 'https://pt.wikipedia.org/wiki/Aprendizado_de_máquina',
+        'Postagem/curtida': 'https://pt.wikipedia.org/wiki/Rede_social',
+        'Armazenamento em servidores': 'https://pt.wikipedia.org/wiki/Servidor_web',
+        'Análise de engajamento': 'https://pt.wikipedia.org/wiki/Engajamento_digital',
+        'Perfilamento de preferências': 'https://pt.wikipedia.org/wiki/Perfilamento_de_usuário',
+        'GPS ativado': 'https://pt.wikipedia.org/wiki/Sistema_de_Posicionamento_Global',
+        'Registro em apps': 'https://pt.wikipedia.org/wiki/Aplicativo_móvel',
+        'Mapeamento de rotas': 'https://pt.wikipedia.org/wiki/Sistema_de_informação_geográfica',
+        'Venda para anunciantes': 'https://pt.wikipedia.org/wiki/Publicidade_online',
+        'Envio/recebimento': 'https://pt.wikipedia.org/wiki/Mensagem_eletrônica',
+        'Armazenamento em nuvem': 'https://pt.wikipedia.org/wiki/Computação_em_nuvem',
+        'Análise de conteúdo': 'https://pt.wikipedia.org/wiki/Análise_de_conteúdo',
+        'Criação de perfil linguístico': 'https://pt.wikipedia.org/wiki/Processamento_de_linguagem_natural'
+      };
+      
+      timelineData[tipo].forEach((etapa, i) => {
+        const step = document.createElement('div');
+        step.className = 'timeline-step';
+        
+        // Verificar se existe link da Wikipedia para esta etapa
+        const wikipediaLink = wikipediaLinks[etapa];
+        if (wikipediaLink) {
+          step.innerHTML = `<a href="${wikipediaLink}" target="_blank" style="color: inherit; text-decoration: none; display: block; width: 100%;">${etapa}</a>`;
+          step.style.cursor = 'pointer';
+          
+          // Adicionar evento de clique para som
+          step.addEventListener('click', function() {
+            playClickSound();
+          });
+        } else {
+          step.textContent = etapa;
+        }
+        
+        timeline.appendChild(step);
+        if (i < timelineData[tipo].length - 1) {
+          const arrow = document.createElement('span');
+          arrow.className = 'timeline-arrow';
+          arrow.textContent = '→';
+          timeline.appendChild(arrow);
+        }
+      });
+    }
+    tipoDado.addEventListener('change', e => {
+      playClickSound();
+      renderTimeline(tipoDado.value);
+    });
+    renderTimeline(tipoDado.value);
+
+    // Função para reproduzir som do jack-in-the-box
+    function playJackInBoxSound() {
+      try {
+        const audio = new Audio('funny-sound-effect-for-quotjack-in-the-boxquot-sound-ver1-110923.mp3');
+        audio.volume = 0.6;
+        audio.play().catch(error => {
+          console.log('Erro ao reproduzir som do jack-in-the-box:', error);
+        });
+      } catch (error) {
+        console.log('Erro ao criar áudio:', error);
+      }
+    }
+
+    // Função para reproduzir som de resposta correta
+    function playCorrectSound() {
+      try {
+        const audio = new Audio('sonido-correcto-331225.mp3');
+        audio.volume = 0.6;
+        audio.play().catch(error => {
+          console.log('Erro ao reproduzir som de resposta correta:', error);
+        });
+      } catch (error) {
+        console.log('Erro ao criar áudio:', error);
+      }
+    }
+
+    // Função para reproduzir som de clique
+    function playClickSound() {
+      try {
+        const audio = new Audio('button-press-2-386176.mp3');
+        audio.volume = 0.4;
+        audio.play().catch(error => {
+          console.log('Erro ao reproduzir som de clique:', error);
+        });
+      } catch (error) {
+        console.log('Erro ao criar áudio:', error);
+      }
+    }
+
+    // Quiz rápido
+    const quizBtns = document.querySelectorAll('.quiz-btn');
+    const quizFeedback = document.getElementById('quizFeedback');
+    quizBtns.forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        const opcao = btn.getAttribute('data-opcao');
+        let feedback = '';
+        
+        // Reproduzir som para fotos, mensagens e histórico de compras
+        if (opcao === 'fotos' || opcao === 'mensagens' || opcao === 'compras') {
+          console.log('Reproduzindo som para:', opcao);
+          playJackInBoxSound();
+        }
+        
+        // Reproduzir som de resposta correta para localização
+        if (opcao === 'localizacao') {
+          console.log('Resposta correta:', opcao);
+          playCorrectSound();
+        }
+        
+        if (opcao === 'localizacao') {
+          feedback = 'Surpresa! Na verdade, seu padrão de localização vale até 5x mais para anunciantes do que suas fotos.';
+        } else if (opcao === 'compras') {
+          feedback = 'Histórico de compras é valioso, mas localização é ainda mais cobiçada por anunciantes.';
+        } else if (opcao === 'fotos') {
+          feedback = 'Fotos são sensíveis, mas localização é o "ouro" para o mercado de dados.';
+        } else if (opcao === 'mensagens') {
+          feedback = 'Mensagens revelam muito, mas localização é o dado mais valioso para o mercado de anúncios.';
+        }
+        quizFeedback.textContent = feedback;
+      });
+    });
+  </script>
+
+
+  <!-- Texto da narração -->
+  <script type="application/json" id="nar-page">
+  {
+    "lang": "pt-BR",
+    "rate": 1.0,
+    "pitch": 1.0,
+    "text": "O Combustível Invisível. Não há IA sem dados. Cada like, busca ou mensagem. Vira matéria-prima para treinar modelos. Combustíveis digitais. Tão valiosos quanto petróleo. Alimentam redes neurais. Geram conhecimento sintético. Se seus dados fossem commodities. Você estaria disposto a vendê-los? Cookies salvos. Logs de navegação. Indexação por buscadores. Perfis de interesse. Treinamento de IA. Postagem, curtida. Armazenamento em servidores. Análise de engajamento. Perfilamento de preferências. Treinamento de IA. GPS ativado. Registro em apps. Mapeamento de rotas. Venda para anunciantes. Treinamento de IA. Envio, recebimento. Armazenamento em nuvem. Análise de conteúdo. Criação de perfil linguístico. Treinamento de IA. Surpresa! Seu padrão de localização vale até 5x mais. Para anunciantes do que suas fotos."
+  }
+  </script>
+
+  <script>
+  (function () {
+    const btn = document.getElementById('nar-play');
+    if (!btn) return;
+
+    let playing = false;
+    let utter = null;
+
+    function loadNarration() {
+      const el = document.getElementById('nar-page');
+      if (el) {
+        try { return JSON.parse(el.textContent.trim()); }
+        catch { return { lang: 'pt-BR', rate: 1.0, pitch: 1.0, text: el.textContent.trim() }; }
+      }
+      return { lang: 'pt-BR', rate: 1.0, pitch: 1.0, text: '' };
+    }
+
+    async function toggle() {
+      if (!('speechSynthesis' in window)) {
+        alert('Seu navegador não suporta leitura por voz.');
+        return;
+      }
+      // Verifica se o áudio está habilitado
+      if (typeof isAudioEnabled === 'function' && !isAudioEnabled()) {
+        return;
+      }
+
+      if (playing) {
+        window.speechSynthesis.cancel();
+        btn.textContent = '🔊 Ouvir';
+        btn.setAttribute('aria-label', 'Ouvir narração da página');
+        playing = false;
+        return;
+      }
+
+      const data = (typeof loadNarration === 'function') ? await loadNarration() : null;
+      const text = data && data.text ? data.text : '';
+      if (!text) return;
+
+      window.speechSynthesis.cancel();
+      utter = new SpeechSynthesisUtterance(text);
+      utter.lang = data.lang || 'pt-BR';
+      utter.rate = data.rate || 1.0;
+      utter.pitch = data.pitch || 1.0;
+
+      utter.onend = () => {
+        playing = false;
+        btn.textContent = '🔊 Ouvir';
+        btn.setAttribute('aria-label', 'Ouvir narração da página');
+      };
+
+      speechSynthesis.speak(utter);
+      playing = true;
+      btn.textContent = '⏸️ Pausar';
+      btn.setAttribute('aria-label', 'Pausar narração');
+    }
+
+    btn.addEventListener('click', toggle);
+    window.addEventListener('beforeunload', () => speechSynthesis.cancel());
+  })();
+  </script>
+</body>
+</html> 

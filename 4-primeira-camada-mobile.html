@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>O Algoritmo Invisível – Primeira Camada Mobile</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-mobile.css">
+    <script src="audio-manager.js"></script>
+    <script src="audio-button.js"></script>
+    <style>
+    body {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Courier New', monospace;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 20px 15px 80px 15px;
+    }
+    .glass-block {
+      background: rgba(27,27,31,0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      padding: 20px 18px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      font-size: 1.8rem;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 12px var(--neon-cyan);
+      margin-bottom: 15px;
+      line-height: 1.3;
+      text-align: center;
+    }
+    .bullets {
+      margin: 15px 0 15px 0;
+      padding-left: 15px;
+    }
+    .bullets li {
+      margin-bottom: 8px;
+      font-size: 1rem;
+      list-style: disc;
+      line-height: 1.5;
+    }
+    .reflexao {
+      font-style: italic;
+      color: var(--neon-yellow);
+      margin: 15px 0 0 0;
+      font-size: 1.1rem;
+      line-height: 1.5;
+    }
+    .token-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin: 20px 0 15px 0;
+      align-items: center;
+      justify-content: center;
+    }
+    .token-form input {
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1.5px solid var(--neon-cyan);
+      background: rgba(0,255,247,0.07);
+      color: var(--text-light);
+      font-size: 1rem;
+      outline: none;
+      width: 100%;
+      max-width: 300px;
+      transition: border 0.2s;
+      box-sizing: border-box;
+    }
+    .token-form input:focus {
+      border: 2px solid var(--neon-cyan);
+    }
+    .token-form button {
+      background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta));
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 10px var(--neon-cyan);
+      min-height: 48px;
+      touch-action: manipulation;
+    }
+    .token-form button:active {
+      transform: scale(0.95);
+      box-shadow: 0 0 18px var(--neon-magenta);
+    }
+    .tokens-area {
+      min-height: 50px;
+      margin: 20px 0 10px 0;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0 10px;
+    }
+    .token-block {
+      background: var(--neon-cyan);
+      color: var(--bg-dark);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      box-shadow: 0 0 10px var(--neon-cyan);
+      opacity: 0;
+      transform: translateY(30px) scale(0.8);
+      transition: all 0.4s cubic-bezier(.6,1.5,.5,1.1);
+      position: relative;
+    }
+    .token-block.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .layers-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: center;
+      margin: 25px 0 15px 0;
+      position: relative;
+      min-height: 200px;
+      align-items: center;
+    }
+    .layer-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .layer-rect {
+      width: 60px;
+      height: 80px;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid var(--neon-magenta);
+      border-radius: 10px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: var(--neon-magenta);
+      box-shadow: 0 0 18px var(--neon-magenta);
+      cursor: pointer;
+      transition: all 0.2s;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .layer-rect:active {
+      border: 2.5px solid var(--neon-yellow);
+      box-shadow: 0 0 24px var(--neon-yellow);
+      color: var(--neon-yellow);
+      transform: scale(0.95);
+    }
+    .layer-tooltip {
+      position: absolute;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(27,27,31,0.95);
+      color: var(--text-light);
+      border: 1px solid var(--neon-yellow);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      z-index: 10;
+      box-shadow: 0 0 12px var(--neon-yellow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      max-width: 200px;
+      text-align: center;
+    }
+    .layer-rect:active .layer-tooltip {
+      opacity: 1;
+    }
+    .progress-area {
+      margin: 25px 0 0 0;
+      text-align: center;
+    }
+    .progress-label {
+      color: var(--neon-yellow);
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+    .progress-bar {
+      width: 100%;
+      max-width: 300px;
+      height: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 6px;
+      margin: 0 auto 8px auto;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-yellow));
+      border-radius: 6px;
+      transition: width 2.2s cubic-bezier(.6,1.5,.5,1.1);
+    }
+    .fun-fact {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 6px;
+      font-style: italic;
+    }
+    .final-area {
+      margin: 30px 0 0 0;
+      text-align: center;
+      display: none;
+    }
+    .final-cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    .final-area.show {
+      display: block;
+    }
+    .final-area h2 {
+      color: var(--neon-cyan);
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+    }
+    .final-area p {
+      color: var(--text-light);
+      font-size: 1rem;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+    .final-area .btn-next {
+      background: linear-gradient(45deg, var(--neon-magenta), var(--neon-yellow));
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 15px 25px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 10px var(--neon-magenta);
+      min-height: 48px;
+      touch-action: manipulation;
+    }
+    .final-area .btn-next:active {
+      transform: scale(0.95);
+      box-shadow: 0 0 18px var(--neon-yellow);
+    }
+    .animated-intro .intro-title {
+      animation: glitchFadeIn 1.2s;
+      text-shadow: 0 0 12px var(--neon-cyan), 0 0 2px #fff;
+    }
+    @keyframes glitchFadeIn {
+      0% { opacity: 0; transform: translateY(30px) scale(0.95);}
+      60% { opacity: 1; transform: translateY(-4px) scale(1.03);}
+      100% { opacity: 1; transform: translateY(0) scale(1);}
+    }
+    .animated-intro .intro-desc {
+      opacity: 0;
+      animation: fadeInUp 1s 0.7s forwards;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0);}
+      from { opacity: 0; transform: translateY(20px);}
+    }
+    .animated-bullets li {
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: fadeInLeft 0.7s forwards;
+    }
+    .animated-bullets li:nth-child(1) { animation-delay: 1.2s; }
+    .animated-bullets li:nth-child(2) { animation-delay: 1.7s; }
+    .animated-bullets li:nth-child(3) { animation-delay: 2.2s; }
+    @keyframes fadeInLeft {
+      to { opacity: 1; transform: translateX(0);}
+      from { opacity: 0; transform: translateX(-30px);}
+    }
+    .neon-keyword {
+      color: var(--neon-cyan);
+      font-weight: bold;
+      text-shadow: 0 0 8px var(--neon-cyan);
+      cursor: pointer;
+      border-bottom: 1.5px dashed var(--neon-cyan);
+      transition: color 0.2s;
+      position: relative;
+    }
+    .neon-keyword:active {
+      color: var(--neon-yellow);
+      text-shadow: 0 0 12px var(--neon-yellow);
+    }
+    .animated-reflexao {
+      opacity: 0;
+      animation: fadeInUp 1s 2.7s forwards;
+    }
+    .icon {
+      font-size: 1.1em;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .neon-tooltip {
+      position: absolute;
+      background: #18181c;
+      color: var(--neon-cyan);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      z-index: 20;
+      box-shadow: 0 0 8px var(--neon-cyan);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 200px;
+      text-align: center;
+    }
+    .neon-keyword:active .neon-tooltip {
+      opacity: 1;
+    }
+
+    /* Controles de navegação mobile */
+    .mobile-controls {
+      position: fixed;
+      bottom: 15px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 9999;
+      gap: 10px;
+    }
+
+    .mobile-nav-btn {
+      background: rgba(0,255,247,0.1);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--neon-cyan);
+      text-decoration: none;
+      font-size: 0.8rem;
+      text-shadow: 0 0 4px var(--neon-cyan);
+      transition: all 0.3s ease;
+      box-shadow: 0 0 8px rgba(0,255,247,0.2);
+      cursor: pointer;
+      touch-action: manipulation;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+    }
+
+    .mobile-nav-btn:active {
+      background: rgba(0,255,247,0.2);
+      transform: scale(0.95);
+    }
+
+    /* Ajustes para telas muito pequenas */
+    @media (max-width: 375px) {
+      .container {
+        padding: 15px 10px 80px 10px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .layer-rect {
+        width: 50px;
+        height: 70px;
+        font-size: 0.8rem;
+      }
+      
+      .token-block {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+      }
+    }
+
+    /* Orientação landscape */
+    @media (max-height: 600px) and (orientation: landscape) {
+      .layers-area {
+        flex-direction: row;
+        gap: 8px;
+        min-height: 100px;
+      }
+      
+      .layer-row {
+        flex-direction: row;
+      }
+      
+      .layer-rect {
+        width: 45px;
+        height: 60px;
+        font-size: 0.8rem;
+      }
+      
+      .container {
+        padding: 10px 15px 70px 15px;
+      }
+    }
+
+    /* Safe areas para iPhone X+ */
+    @supports (padding: max(0px)) {
+      .container {
+        padding-bottom: max(80px, env(safe-area-inset-bottom));
+      }
+      
+      .mobile-controls {
+        bottom: max(15px, env(safe-area-inset-bottom));
+        left: max(15px, env(safe-area-inset-left));
+        right: max(15px, env(safe-area-inset-right));
+      }
+    }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="glass-block animated-intro">
+            <h1 class="intro-title">🔍 O Algoritmo Invisível</h1>
+            <p class="intro-desc">
+                Você acabou de <span class="neon-keyword" data-tooltip="Transformar texto em números que a IA entende">tokenizar
+                <div class="neon-tooltip">Transformar texto em números que a IA entende</div></span> sua mensagem. 
+                Cada palavra virou um <span class="neon-keyword" data-tooltip="Número único que representa uma palavra">token
+                <div class="neon-tooltip">Número único que representa uma palavra</div></span>.
+            </p>
+            
+            <ul class="bullets animated-bullets">
+                <li><span class="icon">⚡</span> <strong>Tokenização</strong>: Quebra o texto em pedaços menores</li>
+                <li><span class="icon">🔢</span> <strong>Embedding</strong>: Converte cada token em um vetor numérico</li>
+                <li><span class="icon">🧠</span> <strong>Processamento</strong>: As redes neurais analisam esses números</li>
+            </ul>
+            
+            <p class="reflexao animated-reflexao">
+                💭 <strong>Pense:</strong> Sua mensagem virou números. Agora a IA pode "entender" você através de matemática.
+            </p>
+        </div>
+
+        <div class="glass-block">
+            <div class="token-form">
+                <input type="text" id="userInput" placeholder="Digite uma mensagem para tokenizar..." maxlength="50">
+                <button onclick="tokenizeInput()">🔍 Tokenizar</button>
+            </div>
+            
+            <div class="tokens-area" id="tokensArea">
+                <!-- Tokens aparecerão aqui -->
+            </div>
+            
+            <div class="layers-area" id="layersArea">
+                <div class="layer-row">
+                    <div class="layer-rect" data-layer="1">
+                        <span class="layer-tooltip">Camada de Embedding - Converte tokens em vetores</span>
+                        <div>E</div>
+                    </div>
+                    <div class="layer-rect" data-layer="2">
+                        <span class="layer-tooltip">Camada de Atenção - Foca nas palavras importantes</span>
+                        <div>A</div>
+                    </div>
+                    <div class="layer-rect" data-layer="3">
+                        <span class="layer-tooltip">Camada Feed-Forward - Processa a informação</span>
+                        <div>F</div>
+                    </div>
+                </div>
+                <div class="layer-row">
+                    <div class="layer-rect" data-layer="4">
+                        <span class="layer-tooltip">Camada de Normalização - Ajusta os valores</span>
+                        <div>N</div>
+                    </div>
+                    <div class="layer-rect" data-layer="5">
+                        <span class="layer-tooltip">Camada de Saída - Gera a resposta final</span>
+                        <div>O</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-area">
+                <div class="progress-label">Processamento da IA</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="fun-fact" id="funFact">
+                    💡 <strong>Fato:</strong> O GPT-3 tem 175 bilhões de parâmetros!
+                </div>
+            </div>
+        </div>
+
+        <div class="final-area" id="finalArea">
+            <h2>🎯 Primeira Camada Descoberta!</h2>
+            <p>
+                Você viu como sua mensagem vira <strong>números</strong> que a IA processa. 
+                Cada palavra tem um valor único, como um código secreto.
+            </p>
+            <div class="final-cards-container">
+                <div class="glass-block">
+                    <h3>🔢 Tokenização</h3>
+                    <p>Texto → Números únicos</p>
+                </div>
+                <div class="glass-block">
+                    <h3>🧠 Embedding</h3>
+                    <p>Números → Vetores matemáticos</p>
+                </div>
+                <div class="glass-block">
+                    <h3>⚡ Processamento</h3>
+                    <p>Vetores → Análise neural</p>
+                </div>
+            </div>
+            <button class="btn-next" onclick="nextLayer()">🔓 Descobrir Segunda Camada</button>
+        </div>
+    </div>
+
+    <!-- Controles de navegação mobile -->
+    <div class="mobile-controls">
+        <a href="3-transition-mobile.html" class="mobile-nav-btn">← Voltar</a>
+        <a href="5-segunda-camada-mobile.html" class="mobile-nav-btn">Próximo →</a>
+    </div>
+
+    <script>
+        let currentTokens = [];
+        let processingStep = 0;
+        let isProcessing = false;
+
+        // Função para tokenizar o input do usuário
+        function tokenizeInput() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            
+            if (!text) {
+                alert('Digite algo para tokenizar!');
+                return;
+            }
+
+            // Feedback tátil
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+
+            // Limpa tokens anteriores
+            document.getElementById('tokensArea').innerHTML = '';
+            currentTokens = [];
+
+            // Simula tokenização
+            const words = text.toLowerCase().split(' ');
+            words.forEach((word, index) => {
+                setTimeout(() => {
+                    const token = word.replace(/[^a-z]/g, ''); // Remove caracteres especiais
+                    if (token) {
+                        createToken(token, Math.floor(Math.random() * 10000));
+                    }
+                }, index * 200);
+            });
+
+            // Inicia processamento após tokenização
+            setTimeout(() => {
+                startProcessing();
+            }, words.length * 200 + 500);
+        }
+
+        // Função para criar um token visual
+        function createToken(text, id) {
+            const tokenArea = document.getElementById('tokensArea');
+            const tokenDiv = document.createElement('div');
+            tokenDiv.className = 'token-block';
+            tokenDiv.textContent = text;
+            tokenDiv.setAttribute('data-id', id);
+            
+            tokenArea.appendChild(tokenDiv);
+            
+            // Anima a aparição do token
+            setTimeout(() => {
+                tokenDiv.classList.add('visible');
+            }, 100);
+            
+            currentTokens.push({ text, id });
+        }
+
+        // Função para iniciar o processamento
+        function startProcessing() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const progressFill = document.getElementById('progressFill');
+            const funFact = document.getElementById('funFact');
+            
+            // Anima a barra de progresso
+            progressFill.style.width = '100%';
+            
+            // Atualiza fatos interessantes durante o processamento
+            const facts = [
+                '💡 <strong>Fato:</strong> O GPT-3 tem 175 bilhões de parâmetros!',
+                '⚡ <strong>Velocidade:</strong> Processa 50.000 tokens por segundo!',
+                '🧠 <strong>Memória:</strong> Consegue "lembrar" de 8.000 palavras!',
+                '🔢 <strong>Vocabulário:</strong> Conhece mais de 50.000 palavras únicas!'
+            ];
+            
+            let factIndex = 0;
+            const factInterval = setInterval(() => {
+                funFact.innerHTML = facts[factIndex];
+                factIndex = (factIndex + 1) % facts.length;
+            }, 2000);
+            
+            // Simula processamento das camadas
+            setTimeout(() => {
+                clearInterval(factInterval);
+                showFinalArea();
+            }, 8000);
+        }
+
+        // Função para mostrar a área final
+        function showFinalArea() {
+            const finalArea = document.getElementById('finalArea');
+            finalArea.classList.add('show');
+            
+            // Scroll suave para a área final
+            setTimeout(() => {
+                finalArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 500);
+        }
+
+        // Função para ir para a próxima camada
+        function nextLayer() {
+            // Feedback tátil
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+            window.location.href = '5-segunda-camada-mobile.html';
+        }
+
+        // Adiciona interação nas camadas
+        document.addEventListener('DOMContentLoaded', () => {
+            const layerRects = document.querySelectorAll('.layer-rect');
+            layerRects.forEach(layer => {
+                layer.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const layerNum = layer.getAttribute('data-layer');
+                    const tooltip = layer.querySelector('.layer-tooltip');
+                    
+                    // Mostra tooltip
+                    if (tooltip) {
+                        tooltip.style.opacity = '1';
+                        setTimeout(() => {
+                            tooltip.style.opacity = '0';
+                        }, 2000);
+                    }
+                    
+                    // Feedback tátil
+                    if (navigator.vibrate) {
+                        navigator.vibrate(30);
+                    }
+                });
+            });
+        });
+
+        // Permite enviar com Enter
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                tokenizeInput();
+            }
+        });
+
+        // Particle emitter (otimizado para mobile)
+        function createParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDelay = Math.random() * 6 + 's';
+            document.getElementById('particles').appendChild(p);
+            setTimeout(() => p.remove(), 6000);
+        }
+
+        // Create particles periodically (menos frequente para mobile)
+        setInterval(createParticle, 600);
+
+        // Prevenir zoom duplo toque
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Prevenir scroll horizontal
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>

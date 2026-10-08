@@ -1,0 +1,33 @@
+O Algoritmo Invisível
+
+Quando você digita uma pergunta, nada mágico acontece — ela é convertida em centenas de milhares de tokens que atravessam camadas de uma rede neural gigante. É esse modelo, treinado em trilhões de palavras, que gera a resposta que você vê.
+
+🔢 Tokens e Embeddings: cada palavra vira números que o modelo lê como "vetores".
+🧩 Camadas do Modelo: sua arquitetura (transformer) empilha dezenas a centenas de camadas que processam e refinam essas informações.
+📚 Treinamento: alimentado com textos da web, livros e códigos, o modelo aprende padrões estatísticos, não "entende" no sentido humano.
+
+Você sabe como suas palavras viram matemática antes de voltar como uma resposta?
+
+Digite uma frase curta...
+Ver tokens em ação
+
+Divisão silábica (X tokens gerados)
+
+Processando X tokens na Camada X
+
+Treinamento do modelo
+Este modelo foi treinado em 1,5 trilhão de tokens.
+
+⚡ Nenhuma mágica
+Quando você pergunta algo, seu texto é quebrado em X tokens, processado por um transformer de X camadas e devolvido como resposta.
+Tudo isso em menos de um segundo.
+
+ℹ️ Nota: Esta é uma simulação educativa, mas é por essas lógicas que funcionam as IAs generativas no estágio atual (2025).
+
+⏩ Avançar camada
+Mas essa é apenas a primeira camada...
+Existem outras camadas trabalhando em paralelo, cada uma com sua função específica.
+Pronto para descobrir o que há por trás?
+
+Voltar
+Próximo

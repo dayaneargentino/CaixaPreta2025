@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ERRO SISTEMA - Mobile</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-mobile.css">
+    <script src="audio-manager.js"></script>
+    <script src="audio-button.js"></script>
+    <style>
+        body {
+            background: var(--bg-dark);
+            color: var(--neon-red);
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
+            overflow-y: auto;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 100px; /* Espaço para controles */
+            box-sizing: border-box;
+        }
+
+        .error-container {
+            text-align: center;
+            z-index: 10;
+            max-width: 100%;
+            padding: 20px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--neon-red);
+            text-shadow: 0 0 10px var(--neon-red);
+            animation: glitch 2s infinite;
+            margin-bottom: 2rem;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .error-message {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+            animation: fadeIn 1s ease-out;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        .error-code {
+            font-size: 0.9rem;
+            color: var(--neon-cyan);
+            margin-bottom: 1rem;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 300px;
+            height: 6px;
+            background: rgba(40, 0, 40, 0.7);
+            border: 1.5px solid var(--neon-magenta);
+            margin: 0 auto 1.5rem auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 3px;
+            box-shadow: 0 0 12px #ff00ea55;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff00ea 0%, #ff4fd8 50%, #ffb3f7 100%);
+            width: 0%;
+            animation: progress 15s linear forwards;
+            border-radius: 3px;
+            box-shadow: 0 0 16px #ff00ea, 0 0 32px #ff4fd8;
+        }
+
+        .redirect-text {
+            font-size: 1rem;
+            color: var(--neon-cyan);
+            animation: pulse 2s infinite;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .code-reveal {
+            background: rgba(10,10,13,0.95);
+            color: #00ffb7;
+            font-family: 'Fira Mono', 'Courier New', monospace;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            box-shadow: 0 0 24px #00fff7;
+            padding: 15px;
+            margin: 1.5rem auto 0 auto;
+            text-align: left;
+            width: 100%;
+            max-width: 100%;
+            min-height: 80px;
+            max-height: 40vh;
+            overflow: auto;
+            animation: fadeIn 1s ease-out;
+            white-space: pre-wrap;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .chat-fake {
+            margin: 0 auto;
+            max-width: 100%;
+            width: 100%;
+            background: rgba(10,10,13,0.85);
+            border-radius: 12px;
+            box-shadow: 0 0 24px #00fff7;
+            padding: 0 0 15px 0;
+            position: relative;
+            animation: fadeIn 1s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chat-window-fake {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 15px 15px 0 15px;
+            width: 100%;
+            max-height: 30vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+            line-height: 1.3;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: rgba(0,255,247,0.1);
+            border: 1px solid var(--neon-cyan);
+            color: var(--text-light);
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: rgba(255,0,224,0.1);
+            border: 1px solid var(--neon-magenta);
+            color: var(--text-light);
+        }
+
+        .bot-icon {
+            font-size: 1.1em;
+            vertical-align: middle;
+            margin-right: 6px;
+            filter: drop-shadow(0 0 4px var(--neon-cyan));
+        }
+
+        .glitch-out {
+            animation: glitch 0.7s steps(2, end) 1;
+            opacity: 0.2 !important;
+            filter: blur(2px) grayscale(1);
+            transition: opacity 0.2s, filter 0.2s;
+        }
+
+        .typing-indicator {
+            color: var(--neon-cyan);
+            font-size: 1rem;
+            margin: 8px 0 0 15px;
+            font-family: 'Courier New', monospace;
+            opacity: 0.8;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        #dots {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { 
+                transform: translate(0);
+                text-shadow: 0 0 10px var(--neon-red);
+            }
+            5% { 
+                transform: translate(-2px, 1px);
+                text-shadow: 2px 0 10px var(--neon-magenta);
+            }
+            10% { 
+                transform: translate(2px, -1px);
+                text-shadow: -2px 0 10px var(--neon-cyan);
+            }
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .devtools-fake {
+            width: 100%;
+            max-width: 100%;
+            margin: 20px auto 0 auto;
+            background: #18181c;
+            border-radius: 6px 6px 0 0;
+            box-shadow: 0 8px 32px #00fff7a0;
+            font-family: 'Fira Mono', 'Courier New', monospace;
+            color: #e5e5e5;
+            border: 1.5px solid #222;
+            overflow: hidden;
+            animation: fadeIn 1s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .devtools-header {
+            background: #23232a;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #222;
+            width: 100%;
+        }
+
+        .devtools-header .dot {
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            display: inline-block; 
+            margin-right: 4px;
+        }
+
+        .devtools-header .red { background: #ff5f56; }
+        .devtools-header .yellow { background: #ffbd2e; }
+        .devtools-header .green { background: #27c93f; }
+
+        .devtools-title {
+            margin-left: 8px;
+            font-weight: bold;
+            color: #aaa;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .devtools-tabs {
+            background: #23232a;
+            padding: 0 12px;
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid #222;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .devtools-tabs .tab {
+            padding: 6px 10px;
+            color: #aaa;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
+
+        .devtools-tabs .tab.active {
+            background: #18181c;
+            color: #00fff7;
+            font-weight: bold;
+        }
+
+        .devtools-content {
+            background: #18181c;
+            padding: 12px 12px 18px 12px;
+            font-size: 0.9rem;
+            min-height: 80px;
+            overflow-x: auto;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .devtools-code {
+            color: #00ffb7;
+            font-family: 'Fira Mono', 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Controles de navegação mobile */
+        .mobile-controls {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 9999;
+            gap: 10px;
+        }
+
+        .mobile-nav-btn {
+            background: rgba(0,255,247,0.1);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: var(--neon-cyan);
+            text-decoration: none;
+            font-size: 0.8rem;
+            text-shadow: 0 0 4px var(--neon-cyan);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px rgba(0,255,247,0.2);
+            cursor: pointer;
+            touch-action: manipulation;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .mobile-nav-btn:active {
+            background: rgba(0,255,247,0.2);
+            transform: scale(0.95);
+        }
+
+        /* Ajustes para telas muito pequenas */
+        @media (max-width: 375px) {
+            .error-title {
+                font-size: 1.6rem;
+            }
+            
+            .error-message {
+                font-size: 1rem;
+            }
+            
+            .code-reveal {
+                font-size: 0.8rem;
+                padding: 12px;
+            }
+            
+            .devtools-code {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Orientação landscape */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .error-container {
+                padding: 10px;
+            }
+            
+            .error-title {
+                font-size: 1.4rem;
+                margin-bottom: 1rem;
+            }
+            
+            .error-message {
+                font-size: 0.9rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            .progress-bar {
+                height: 4px;
+                margin-bottom: 1rem;
+            }
+            
+            .code-reveal {
+                max-height: 25vh;
+                padding: 10px;
+                font-size: 0.8rem;
+            }
+            
+            .chat-window-fake {
+                max-height: 20vh;
+                padding: 10px 10px 0 10px;
+            }
+            
+            .message {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Safe areas para iPhone X+ */
+        @supports (padding: max(0px)) {
+            body {
+                padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-right));
+            }
+            
+            .mobile-controls {
+                bottom: max(15px, env(safe-area-inset-bottom));
+                left: max(15px, env(safe-area-inset-left));
+                right: max(15px, env(safe-area-inset-right));
+            }
+        }
+
+        /* Scrollbar personalizada para mobile */
+        .code-reveal::-webkit-scrollbar,
+        .chat-window-fake::-webkit-scrollbar,
+        .devtools-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .code-reveal::-webkit-scrollbar-track,
+        .chat-window-fake::-webkit-scrollbar-track,
+        .devtools-content::-webkit-scrollbar-track {
+            background: rgba(0,255,247,0.1);
+        }
+
+        .code-reveal::-webkit-scrollbar-thumb,
+        .chat-window-fake::-webkit-scrollbar-thumb,
+        .devtools-content::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="error-container">
+        <div class="error-title">ERRO: REVELAÇÃO INDEVIDA</div>
+        <div class="error-message" id="msg1" style="display: none;">
+            A Caixa Preta não deveria mostrar o que há por dentro dela.
+        </div>
+        <div class="error-message" id="msg2" style="display: none;">
+            Ou seria por de trás da sua primeira camada?
+        </div>
+        <div class="error-code" id="code" style="display: none;">
+            CP: "Se alguém perguntar, eu nego tudo!"
+        </div>
+        
+        <div class="progress-bar" id="progress" style="display: none;">
+            <div class="progress-fill"></div>
+        </div>
+        
+        <div class="redirect-text" id="redirect" style="display: none;">
+            Acesso secreto liberado...
+        </div>
+        
+        <div class="chat-fake" id="chatFake" style="display: none;">
+            <div class="chat-window-fake" id="chatWindowFake">
+                <!-- Mensagens serão inseridas via JS -->
+            </div>
+            <div class="typing-indicator" id="typingIndicator" style="display:none;">
+                <span class="bot-icon">🤖</span> <span id="dots">...</span>
+            </div>
+        </div>
+        
+        <div class="code-reveal" id="codeReveal" style="display: none;">
+            <pre id="fakeCode"></pre>
+        </div>
+        
+        <div class="devtools-fake" id="devtoolsFake" style="display: none;">
+            <div class="devtools-header">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+                <span class="devtools-title">Inspecionar</span>
+            </div>
+            <div class="devtools-tabs">
+                <span class="tab active" id="tabElements">Elements</span>
+                <span class="tab" id="tabConsole">Console</span>
+                <span class="tab" id="tabNetwork">Network</span>
+            </div>
+            <div class="devtools-content" id="devtoolsContent">
+                <pre class="devtools-code" id="devtoolsCodeContent">&lt;div class="message bot"&gt;
+  &lt;span class="bot-icon"&gt;🤖&lt;/span&gt; Mas isso te &lt;strong&gt;incomoda&lt;/strong&gt;?
+&lt;/div&gt;
+&lt;div class="message user"&gt;
+  😰 Sim, me preocupa
+&lt;/div&gt;</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles de navegação mobile -->
+    <div class="mobile-controls">
+        <a href="2-chat-mobile.html" class="mobile-nav-btn">← Voltar</a>
+        <a href="4-primeira-camada-mobile.html" class="mobile-nav-btn">Próximo →</a>
+    </div>
+
+    <script>
+        // Particle emitter (otimizado para mobile)
+        function createParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDelay = Math.random() * 6 + 's';
+            document.getElementById('particles').appendChild(p);
+            setTimeout(() => p.remove(), 6000);
+        }
+
+        // Create particles periodically (menos frequente para mobile)
+        setInterval(createParticle, 500);
+
+        // Sequência de mensagens mais lenta
+        function showMessage(elementId, delay) {
+            setTimeout(() => {
+                document.getElementById(elementId).style.display = 'block';
+                document.getElementById(elementId).style.animation = 'fadeIn 1s ease-out';
+            }, delay);
+        }
+
+        // Função para adicionar mensagem ao chat simulado
+        function addFakeMessage(who, text, delay = 0, typewriter = false, callback) {
+            setTimeout(() => {
+                const chatWindow = document.getElementById('chatWindowFake');
+                const msg = document.createElement('div');
+                msg.className = 'message ' + who;
+                if (who === 'bot') {
+                    msg.innerHTML = '<span class="bot-icon">🤖</span> <span class="msg-text"></span>';
+                } else {
+                    msg.innerHTML = '<strong>' + text + '</strong>';
+                }
+                chatWindow.appendChild(msg);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                if (typewriter && who === 'bot') {
+                    let i = 0;
+                    const span = msg.querySelector('.msg-text');
+                    function typeLetter() {
+                        if (i < text.length) {
+                            span.innerHTML += text[i];
+                            i++;
+                            setTimeout(typeLetter, 30);
+                        } else if (callback) {
+                            callback();
+                        }
+                    }
+                    typeLetter();
+                } else if (callback) {
+                    callback();
+                }
+            }, delay);
+        }
+
+        // Redirecionamento mais lento
+        function redirectToPrimeiraCamada() {
+            // Feedback tátil
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+            // Para o som de processamento antes de redirecionar
+            stopProcessingSound();
+            window.location.href = '4-primeira-camada-mobile.html';
+        }
+
+        // Conteúdo simulado das abas do devtools
+        const devtoolsTabs = [
+            {
+                id: 'tabElements',
+                label: 'Elements',
+                content: ` 3cdiv class="message bot"&gt;\n  &lt;span class="bot-icon"&gt;🤖&lt;/span&gt; Mas isso te &lt;strong&gt;incomoda&lt;/strong&gt;?\n&lt;/div&gt;\n&lt;div class="message user"&gt;\n  😰 Sim, me preocupa\n&lt;/div&gt;`
+            },
+            {
+                id: 'tabConsole',
+                label: 'Console',
+                content: `> Mensagem: "Acesso à Primeira Camada autorizado."\n> Warning: Você está indo longe demais...\n> Info: Nenhum erro encontrado.`
+            },
+            {
+                id: 'tabNetwork',
+                label: 'Network',
+                content: `GET /primeira-camada.html 200 OK\nPOST /api/tokenize 204 No Content\nWS  /realtime 101 Switching Protocols`
+            }
+        ];
+
+        function alternarDevtoolsTabs() {
+            let idx = 0;
+            const tabEls = devtoolsTabs.map(tab => document.getElementById(tab.id));
+            const codeContent = document.getElementById('devtoolsCodeContent');
+            function showTab(i) {
+                tabEls.forEach((el, j) => {
+                    if (el) el.classList.toggle('active', j === i);
+                });
+                codeContent.textContent = devtoolsTabs[i].content;
+            }
+            showTab(0);
+            setTimeout(() => showTab(1), 2500);
+            setTimeout(() => showTab(2), 5000);
+        }
+
+        // Função para tocar sirene de alarme
+        function playAlarmSiren() {
+            if (typeof playAudioFile === 'function') {
+                playAudioFile('alarm-siren-sound-effect-type-01-294194.mp3', 0.7);
+            } else {
+                const audio = new Audio('alarm-siren-sound-effect-type-01-294194.mp3');
+                audio.volume = 0.7;
+                if (typeof trackAudioElement === 'function') {
+                    trackAudioElement(audio);
+                }
+                audio.play().catch(error => {
+                    console.log('Erro ao reproduzir sirene:', error);
+                });
+            }
+        }
+
+        // Variável global para controlar o som de processamento
+        let processingAudio = null;
+
+        // Função para iniciar som de processamento em loop
+        function startProcessingSound() {
+            if (typeof playAudioFile === 'function') {
+                processingAudio = playAudioFile('computer-processing-sound-effect-01-122131.mp3', 0.5);
+                if (processingAudio) {
+                    processingAudio.loop = true;
+                }
+            } else {
+                processingAudio = new Audio('computer-processing-sound-effect-01-122131.mp3');
+                processingAudio.volume = 0.5;
+                processingAudio.loop = true;
+                if (typeof trackAudioElement === 'function') {
+                    trackAudioElement(processingAudio);
+                }
+                processingAudio.play().catch(error => {
+                    console.log('Erro ao reproduzir som de processamento:', error);
+                });
+            }
+        }
+
+        // Função para parar som de processamento
+        function stopProcessingSound() {
+            if (processingAudio) {
+                processingAudio.pause();
+                processingAudio.currentTime = 0;
+                processingAudio = null;
+            }
+        }
+
+        // Inicializar sequência
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sirene de alarme quando o título de erro aparece (imediatamente)
+            playAlarmSiren();
+            
+            showMessage('msg1', 2000);    // 2s
+            showMessage('msg2', 5000);    // 5s
+            showMessage('code', 7000);    // 7s - Inicia som de processamento em loop
+            setTimeout(() => {
+                startProcessingSound();
+            }, 7000);
+            showMessage('progress', 7500); // 7.5s
+            // Exibe a frase de redirecionamento só após a barra ser preenchida (15s de animação)
+            setTimeout(() => {
+                showMessage('redirect', 22500); // 7.5s + 15s = 22.5s
+                // Após 1.5s, mostra o devtools-fake
+                setTimeout(() => {
+                    document.getElementById('redirect').style.display = 'none';
+                    document.getElementById('devtoolsFake').style.display = 'block';
+                    document.getElementById('devtoolsFake').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    alternarDevtoolsTabs();
+                    // Após 8s, mostra o código falso
+                    setTimeout(() => {
+                        document.getElementById('devtoolsFake').style.display = 'none';
+                        document.getElementById('codeReveal').style.display = 'block';
+                        document.getElementById('codeReveal').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // O som de processamento já está tocando em loop desde a mensagem CP
+                        
+                        typeFakeCode(fakeCodeLines, 'fakeCode', undefined, () => {
+                            // Redireciona 0.5s depois do código completo
+                            setTimeout(() => {
+                                redirectToPrimeiraCamada();
+                            }, 500);
+                        });
+                    }, 8000);
+                }, 1500);
+            }, 15000);
+        });
+
+        // Código falso a ser exibido
+        const fakeCodeLines = [
+            'function processInput(input) {',
+            '    // Tokenizando mensagem...',
+            '    const tokens = tokenize(input);',
+            '    // Analisando intenção...',
+            '    const intent = detectIntent(tokens);',
+            '    // Gerando resposta...',
+            '    return generateResponse(intent);',
+            '}',
+            '',
+            '// [Acesso à Primeira Camada autorizado]',
+            ''
+        ];
+
+        function typeFakeCode(lines, elementId, delayPerLine = 200, onComplete) {
+            const el = document.getElementById(elementId);
+            el.textContent = '';
+            let i = 0;
+            const totalDuration = 8000; // 8 segundos
+            const delay = Math.floor(totalDuration / lines.length);
+            function typeLine() {
+                if (i < lines.length) {
+                    el.textContent += lines[i] + '\n';
+                    i++;
+                    // Scroll para centralizar o bloco na tela, deixando o final visível e com margem
+                    el.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(typeLine, delay);
+                } else if (onComplete) {
+                    // Garante que o bloco role até o final ao terminar
+                    setTimeout(() => {
+                        el.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        onComplete();
+                    }, 100);
+                }
+            }
+            typeLine();
+        }
+
+        // Prevenir zoom duplo toque
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Prevenir scroll horizontal
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>

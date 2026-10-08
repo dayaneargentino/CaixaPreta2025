@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Vibe Coding Desprogramativo - Mobile</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-mobile.css">
+    <script src="audio-manager.js"></script>
+    <script src="audio-button.js"></script>
+    <style>
+    body {
+      background: var(--bg-dark);
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      color: var(--text-light);
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 20px 15px 80px 15px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .glass-block {
+      background: rgba(27,27,31,0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      padding: 25px 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 2rem;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 18px var(--neon-cyan), 0 0 32px #7f5fff;
+      margin-bottom: 20px;
+      letter-spacing: 0.1em;
+      font-weight: bold;
+      line-height: 1.2;
+    }
+    
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--neon-yellow);
+      text-shadow: 0 0 8px var(--neon-yellow);
+      margin-bottom: 25px;
+      font-style: italic;
+    }
+    
+    .intro-text {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 25px;
+      color: var(--text-light);
+    }
+    
+    .highlight {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px var(--neon-cyan);
+      font-weight: bold;
+    }
+    
+    .author-info {
+      background: linear-gradient(90deg, rgba(0,255,247,0.1) 0%, rgba(255,0,224,0.1) 100%);
+      border: 2px solid var(--neon-cyan);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 25px 0;
+      box-shadow: 0 0 20px rgba(0,255,247,0.2);
+    }
+    
+    .author-title {
+      font-size: 1.3rem;
+      color: var(--neon-yellow);
+      text-shadow: 0 0 12px var(--neon-yellow);
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+    
+    .author-text {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: var(--text-light);
+    }
+    
+    .concept-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin: 25px 0;
+    }
+    
+    .concept-card {
+      background: rgba(255,0,224,0.08);
+      border: 1.5px solid var(--neon-magenta);
+      border-radius: 10px;
+      padding: 15px;
+      text-align: left;
+      box-shadow: 0 0 15px rgba(255,0,224,0.2);
+      transition: all 0.3s ease;
+      touch-action: manipulation;
+    }
+    
+    .concept-card:active {
+      transform: scale(0.98);
+      box-shadow: 0 0 25px rgba(255,0,224,0.4);
+    }
+    
+    .concept-title {
+      font-size: 1.1rem;
+      color: var(--neon-magenta);
+      text-shadow: 0 0 8px var(--neon-magenta);
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    
+    .concept-desc {
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: var(--text-light);
+    }
+    
+    .reflection {
+      background: rgba(255,234,0,0.1);
+      border: 2px solid var(--neon-yellow);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 25px 0;
+      box-shadow: 0 0 20px rgba(255,234,0,0.2);
+    }
+    
+    .reflection h3 {
+      font-size: 1.2rem;
+      color: var(--neon-yellow);
+      text-shadow: 0 0 12px var(--neon-yellow);
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+    
+    .reflection p {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: var(--text-light);
+    }
+    
+    .btn-restart {
+      background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta));
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 15px 25px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 15px var(--neon-cyan);
+      min-height: 48px;
+      touch-action: manipulation;
+      margin-top: 20px;
+    }
+    
+    .btn-restart:active {
+      transform: scale(0.95);
+      box-shadow: 0 0 25px var(--neon-magenta);
+    }
+
+    .btn-info {
+      background: linear-gradient(45deg, var(--neon-yellow), var(--neon-cyan));
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 10px var(--neon-yellow);
+      min-height: 44px;
+      touch-action: manipulation;
+      margin: 10px 5px;
+    }
+    
+    .btn-info:active {
+      transform: scale(0.95);
+      box-shadow: 0 0 20px var(--neon-cyan);
+    }
+
+    /* Controles de navegação mobile */
+    .mobile-controls {
+      position: fixed;
+      bottom: 15px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 9999;
+      gap: 10px;
+    }
+
+    .mobile-nav-btn {
+      background: rgba(0,255,247,0.1);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--neon-cyan);
+      text-decoration: none;
+      font-size: 0.8rem;
+      text-shadow: 0 0 4px var(--neon-cyan);
+      transition: all 0.3s ease;
+      box-shadow: 0 0 8px rgba(0,255,247,0.2);
+      cursor: pointer;
+      touch-action: manipulation;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+    }
+
+    .mobile-nav-btn:active {
+      background: rgba(0,255,247,0.2);
+      transform: scale(0.95);
+    }
+
+    /* Ajustes para telas muito pequenas */
+    @media (max-width: 375px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+      
+      .intro-text {
+        font-size: 0.95rem;
+      }
+      
+      .author-title {
+        font-size: 1.1rem;
+      }
+      
+      .concept-title {
+        font-size: 1rem;
+      }
+    }
+
+    /* Safe areas para iPhone X+ */
+    @supports (padding: max(0px)) {
+      .container {
+        padding-bottom: max(80px, env(safe-area-inset-bottom));
+      }
+      
+      .mobile-controls {
+        bottom: max(15px, env(safe-area-inset-bottom));
+        left: max(15px, env(safe-area-inset-left));
+        right: max(15px, env(safe-area-inset-right));
+      }
+    }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="glass-block">
+            <h1>🎯 VIBE CODING DESPROGRAMATIVO</h1>
+            <p class="subtitle">Uma experiência de desprogramação digital</p>
+            
+            <p class="intro-text">
+                Você acabou de viver uma experiência de <span class="highlight">desprogramação</span>. 
+                Não foi apenas um tutorial sobre IA - foi um <span class="highlight">despertar</span> 
+                para a realidade por trás da tecnologia.
+            </p>
+            
+            <div class="author-info">
+                <div class="author-title">👩‍💻 Desenvolvido por Dayane Argentino</div>
+                <div class="author-text">
+                    Pesquisadora em Tecnologia e Sociedade, especializada em 
+                    <strong>desprogramação digital</strong> e <strong>conscientização tecnológica</strong>.
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-block">
+            <h3>🧠 O que é Vibe Coding Desprogramativo?</h3>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <div class="concept-title">🔓 Desprogramação</div>
+                    <div class="concept-desc">
+                        Quebrar a programação mental que nos faz aceitar 
+                        tecnologias sem questionar seus impactos.
+                    </div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-title">💡 Conscientização</div>
+                    <div class="concept-desc">
+                        Entender que por trás de cada "inteligência artificial" 
+                        há interesses, dados e infraestrutura reais.
+                    </div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-title">🎯 Empoderamento</div>
+                    <div class="concept-desc">
+                        Desenvolver pensamento crítico para usar tecnologia 
+                        de forma consciente e responsável.
+                    </div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-title">🌱 Transformação</div>
+                    <div class="concept-desc">
+                        Mudar a relação com a tecnologia de passiva para ativa, 
+                        de consumidora para questionadora.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-block">
+            <div class="reflection">
+                <h3>💭 Reflexão Final</h3>
+                <p>
+                    A <strong>inteligência artificial</strong> não é neutra. Ela carrega 
+                    os vieses, interesses e limitações de quem a criou e treinou.
+                </p>
+                <p>
+                    Agora você tem o <strong>poder</strong> de questionar, de não aceitar 
+                    respostas prontas, de exigir transparência e de usar tecnologia 
+                    de forma <strong>consciente</strong>.
+                </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn-restart" onclick="restartExperience()">
+                    🔄 Refazer Experiência
+                </button>
+                <button class="btn-info" onclick="showMoreInfo()">
+                    ℹ️ Mais Informações
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles de navegação mobile -->
+    <div class="mobile-controls">
+        <a href="8-prefechamento-mobile.html" class="mobile-nav-btn">← Voltar</a>
+        <a href="1-index-mobile.html" class="mobile-nav-btn">🏠 Início</a>
+    </div>
+
+    <script>
+        function restartExperience() {
+            // Feedback tátil
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+            window.location.href = '1-index-mobile.html';
+        }
+
+        function showMoreInfo() {
+            // Feedback tátil
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            alert('📚 <strong>Recursos Adicionais:</strong>\n\n' +
+                  '• Leia sobre "Algoritmos de Opressão" de Safiya Noble\n' +
+                  '• Explore "Weapons of Math Destruction" de Cathy O\'Neil\n' +
+                  '• Pesquise sobre "AI Bias" e "Algorithmic Accountability"\n' +
+                  '• Participe de discussões sobre ética em IA\n\n' +
+                  '💡 <strong>Lembre-se:</strong> A tecnologia deve servir à humanidade, não o contrário.');
+        }
+
+        // Particle emitter (otimizado para mobile)
+        function createParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDelay = Math.random() * 6 + 's';
+            document.getElementById('particles').appendChild(p);
+            setTimeout(() => p.remove(), 6000);
+        }
+
+        // Create particles periodically (menos frequente para mobile)
+        setInterval(createParticle, 1200);
+
+        // Prevenir zoom duplo toque
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Prevenir scroll horizontal
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>

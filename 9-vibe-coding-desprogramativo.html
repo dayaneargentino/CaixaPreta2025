@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding Desprogramativo - A História por Trás da Caixa Preta</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="audio-manager.js"></script>
+    <script src="audio-button.js"></script>
+    <style>
+        body {
+            background: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 60px 20px;
+        }
+        
+        .glass-block {
+            background: rgba(27,27,31,0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            padding: 32px 28px;
+            margin-bottom: 32px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            font-size: 2.4rem;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 12px var(--neon-cyan);
+            margin-bottom: 18px;
+            text-align: center;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 8px var(--neon-magenta);
+            margin: 30px 0 15px 0;
+            border-left: 4px solid var(--neon-magenta);
+            padding-left: 15px;
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 6px var(--neon-yellow);
+            margin: 25px 0 10px 0;
+        }
+        
+        .narrativa {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+        
+        .highlight {
+            color: var(--neon-cyan);
+            font-weight: bold;
+            text-shadow: 0 0 6px var(--neon-cyan);
+        }
+        
+        .prompt-box {
+            background: rgba(0,255,247,0.08);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0,255,247,0.2);
+        }
+        
+        .prompt-box::before {
+            content: "💻 PROMPT: ";
+            color: var(--neon-yellow);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .resultado-box {
+            background: rgba(255,0,224,0.08);
+            border: 1px solid var(--neon-magenta);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            box-shadow: 0 0 15px rgba(255,0,224,0.2);
+        }
+        
+        .resultado-box::before {
+            content: "✅ RESULTADO: ";
+            color: var(--neon-magenta);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .timeline {
+            position: relative;
+            margin: 30px 0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 40px;
+        }
+        
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+        
+        .timeline-item::after {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 12px;
+            width: 2px;
+            height: calc(100% + 18px);
+            background: linear-gradient(to bottom, var(--neon-cyan), transparent);
+        }
+        
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        
+        .timeline-title {
+            color: var(--neon-yellow);
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-desc {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+        
+        .reflexao {
+            font-style: italic;
+            color: var(--neon-yellow);
+            margin: 25px 0;
+            font-size: 1.1rem;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,234,0,0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255,234,0,0.2);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0,255,247,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            color: var(--neon-cyan);
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--neon-cyan);
+            display: block;
+        }
+        
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .navegacao {
+            position: fixed;
+            right: 3vw;
+            bottom: 3vh;
+            display: flex;
+            flex-direction: row;
+            gap: 18px;
+            z-index: 9999;
+        }
+        
+        .btn-neon {
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta));
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-weight: bold;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px var(--neon-cyan);
+            text-align: center;
+        }
+        
+        .btn-neon:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 20px var(--neon-magenta);
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        .fade-in:nth-child(1) { animation-delay: 0.1s; }
+        .fade-in:nth-child(2) { animation-delay: 0.3s; }
+        .fade-in:nth-child(3) { animation-delay: 0.5s; }
+        .fade-in:nth-child(4) { animation-delay: 0.7s; }
+        .fade-in:nth-child(5) { animation-delay: 0.9s; }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .scanlines {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(0,255,255,0.03) 0px,
+                rgba(0,255,255,0.03) 1px,
+                transparent 2px,
+                transparent 6px
+            );
+            mix-blend-mode: lighten;
+            opacity: 0.5;
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            top: -20px;
+            width: 2px;
+            height: 32px;
+            background: linear-gradient(180deg, var(--neon-cyan), transparent);
+            opacity: 0.7;
+            border-radius: 2px;
+            animation: fall 6s linear forwards;
+        }
+        
+        @keyframes fall {
+            to { top: 110vh; opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="glass-block fade-in">
+            <h1>Vibe Coding Desprogramativo</h1>
+            <p style="text-align: center; color: var(--neon-yellow); font-size: 1.2rem; margin: -10px 0 20px 0; text-shadow: 0 0 8px var(--neon-yellow);">
+                <a href="https://dayaneargentino.notion.site/Dayane-Argentino-Dias-2076e1d8545c805b9e09d97b773f9443?source=copy_link" target="_blank" style="color: var(--neon-yellow); text-decoration: none; text-shadow: 0 0 8px var(--neon-yellow); transition: all 0.3s ease;" onmouseover="this.style.textShadow='0 0 15px var(--neon-yellow)'; this.style.transform='scale(1.05)'" onmouseout="this.style.textShadow='0 0 8px var(--neon-yellow)'; this.style.transform='scale(1)'">por Dayane Argentino</a>
+            </p>
+            <p class="narrativa">
+                Esta é a história por trás da <span class="highlight">Caixa Preta</span> — um projeto que nasceu da curiosidade sobre como contar histórias complexas através de código. Não foi apenas sobre criar páginas web, mas sobre <span class="highlight">desprogramar</span> a forma como pensamos sobre tecnologia.
+            </p>
+        </div>
+        
+        <div class="glass-block fade-in">
+            <h2>🎯 O Início: A Metáfora da Caixa-Preta</h2>
+            <p class="narrativa">
+                Tudo começou com uma pergunta: <span class="highlight">"Como explicar o que é uma IA de forma que qualquer pessoa entenda?"</span> Não queria apenas mostrar o que ela faz, mas revelar como ela funciona, onde ela existe e qual o impacto real dela no mundo.
+            </p>
+            
+            <p class="narrativa">
+                A metáfora da <span class="highlight">"Caixa Preta"</span> surgiu a partir de deparar diversas vezes com o termo em notícias, artigos e discussões sobre o funcionamento da IA. Algo que parece mágico por fora, mas que esconde processos complexos por dentro. E se pudéssemos abrir essa caixa, camada por camada?
+            </p>
+        </div>
+        
+        <div class="glass-block fade-in">
+            <h2>📚 O Contexto: Pesquisa Tese</h2>
+            <p class="narrativa">
+                O projeto surge como um desdobramento prático de conhecimentos levantados para a minha tese de doutorado, que investiga como as <span class="highlight">IAs generativas penetram e reconfiguram o sistema literário</span>, alterando os modos de edição, recomendação e criação textual.
+            </p>
+            
+            <p class="narrativa">
+                Inspirado pela <span class="highlight">midiologia de Régis Debray</span>, o projeto entende a Caixa preta como <span class="highlight">mídium</span>: um objeto que carrega e transforma a ideia, evidenciando as materialidades da transmissão tecnológica.
+            </p>
+        </div>
+        
+        <div class="glass-block fade-in">
+            <h2>🔄 O Desdobramento: Desprogramar para (Re)programar</h2>
+            <p class="narrativa">
+                Dessa prática nasceu a ideia da oficina <span class="highlight">"Desprogramar para Reprogramar"</span>, que se tornou uma extensão graças ao <a href="https://www.observatorioldigital.ufscar.br/" target="_blank" style="color: var(--neon-cyan); text-decoration: none; text-shadow: 0 0 6px var(--neon-cyan); transition: all 0.3s ease;" onmouseover="this.style.textShadow='0 0 12px var(--neon-cyan)'; this.style.transform='scale(1.02)'" onmouseout="this.style.textShadow='0 0 6px var(--neon-cyan)'; this.style.transform='scale(1)'"><span class="highlight">Observatório da Literatura Digital Brasileira</span></a>, sob orientação da professora doutora Rejane C. Rocha, e as pesquisas, discussões e produções desse grupo.
+            </p>
+            
+            <p class="narrativa">
+                A oficina convidou outras pessoas a experimentar essa <span class="highlight">zona híbrida entre arte e código</span>, provocando-as a tratar o computador não como ferramenta neutra, mas como <span class="highlight">mídium que pensa, responde e distorce</span>.
+            </p>
+            
+            <p class="narrativa">
+                Se a Caixa Preta é o objeto, a oficina é o <span class="highlight">gesto de abertura</span> — um convite a continuar o desmonte. Criar a Caixa Preta foi, portanto, criar também um <span class="highlight">modo de olhar</span>: desconfiado, curioso, poroso às falhas.
+            </p>
+            
+            <p class="narrativa">
+                O projeto me ensinou que <span class="highlight">programar pode ser uma forma de escrever</span>, e escrever, para mim, é uma forma de <span class="highlight">hackear o mundo</span>.
+            </p>
+        </div>
+        
+        <div class="glass-block fade-in">
+            <h2>🛠️ O Processo: 50+ Prompts, 1 História</h2>
+            <p class="narrativa">
+                O desenvolvimento seguiu uma abordagem <span class="highlight">"vibe coding"</span> — cada prompt era como uma conversa, uma exploração de possibilidades. Não havia um plano rígido, mas sim uma narrativa que se desdobrava naturalmente através de iterações constantes e refinamentos.
+            </p>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-title">1-index.html: A Caixa 3D Interativa</div>
+                    <div class="timeline-desc">Página inicial com caixa neon 3D que representa a IA — interativa, com efeitos de hover e partículas flutuantes.</div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-title">2-chat.html: O Diálogo com IA</div>
+                    <div class="timeline-desc">Interface de chat onde a IA se apresenta com personalidade, ironia e humanidade, criando conexão emocional.</div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-title">3-transition.html: A Transição Glitch</div>
+                    <div class="timeline-desc">Efeitos de glitch e quebra visual para simular a "abertura" da caixa, preparando para as camadas internas.</div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-title">4-primeira-camada.html: O Algoritmo Invisível</div>
+                    <div class="timeline-desc">Revela a tokenização e processamento de texto — como palavras viram matemática e números.</div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-title">5-segunda-camada.html: As Engrenagens Físicas</div>
+                    <div class="timeline-desc">Mostra a infraestrutura real: data centers, consumo energético, vídeos gerados por IA e impacto ambiental.</div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-title">6-terceira-camada.html: O Combustível Invisível</div>
+                    <div class="timeline-desc">Explora dados como commodity, valor econômico, privacidade e o que realmente alimenta as IAs.</div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-title">7-quarta-camada.html: O Diálogo Filosófico</div>
+                    <div class="timeline-desc">A IA reflete sobre si mesma, vieses, colonialismo digital e as implicações éticas da tecnologia.</div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-title">8-prefechamento.html: Versão 1.0</div>
+                    <div class="timeline-desc">Explica que esta é a primeira versão, introduz outros tipos de IA e camadas futuras.</div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-title">8-fechamento.html: Caixas Fragmentadas</div>
+                    <div class="timeline-desc">Caixas 3D em diferentes estados — abertas, fechadas, defeituosas — representando a transformação.</div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-title">9-fechamento.html: Encerramento Final</div>
+                    <div class="timeline-desc">Caixas quadradas perfeitas com ângulos únicos — a caixa original, agora completamente desvendada.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass-block fade-in">
+            <h2>💡 Os Insights: O que Aprendemos</h2>
+            
+            <h3>1. Narrativa como Estrutura</h3>
+            <p class="narrativa">
+                Cada página não era apenas funcional, mas <span class="highlight">narrativa</span>. A sequência linear criava uma jornada de descoberta, onde cada camada revelava algo novo sobre a IA.
+            </p>
+            
+            <h3>2. Interatividade como Engajamento</h3>
+            <p class="narrativa">
+                Botões, tooltips, animações — tudo servia para manter o usuário <span class="highlight">presente</span> na experiência. Não era passivo, mas participativo.
+            </p>
+            
+            <h3>3. Visual como Linguagem</h3>
+            <p class="narrativa">
+                O tema cyber-futurista não era apenas estético, mas <span class="highlight">semântico</span>. Cores neon, scanlines, partículas — tudo comunicava tecnologia e mistério.
+            </p>
+            
+            <h3>4. Educação como Entretenimento</h3>
+            <p class="narrativa">
+                Conceitos complexos como tokenização, embeddings e transformers eram explicados através de <span class="highlight">experiência</span>, não apenas texto.
+            </p>
+        </div>
+        
+        <div class="glass-block fade-in">
+            <h2>📊 Os Números: O que Foi Criado</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">11</span>
+                    <div class="stat-label">Páginas HTML</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">50+</span>
+                    <div class="stat-label">Prompts de Desenvolvimento</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">6</span>
+                    <div class="stat-label">Vídeos de IA</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">3</span>
+                    <div class="stat-label">Arquivos CSS/JS</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">2</span>
+                    <div class="stat-label">Documentos de Referência</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number">9</span>
+                    <div class="stat-label">Caixas 3D Únicas</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass-block fade-in">
+            <h2>🎨 A Estética: Cyber-Futurismo como Metáfora</h2>
+            <p class="narrativa">
+                A escolha do tema cyber-futurista não foi aleatória. Era uma forma de <span class="highlight">materializar</span> o conceito abstrato de IA em algo visual e tangível. As cores neon, os efeitos de glitch, as scanlines — tudo remetia à estética dos filmes de ficção científica dos anos 80, quando a tecnologia ainda era misteriosa e fascinante.
+            </p>
+            
+            <p class="narrativa">
+                Mas havia uma <span class="highlight">ironia</span> nessa escolha: enquanto a estética remetia ao futuro, o conteúdo revelava o presente. A IA não é ficção científica — ela é real, está aqui, e tem impactos reais no mundo.
+            </p>
+        </div>
+        
+        <div class="glass-block fade-in">
+            <h2>🔄 O Método: Vibe Coding em Ação</h2>
+            <p class="narrativa">
+                O <span class="highlight">"vibe coding"</span> é uma abordagem que prioriza a intuição e a narrativa sobre a estrutura rígida. Cada prompt era uma exploração, uma pergunta: "E se...?" Não havia medo de experimentar, de tentar coisas diferentes, de deixar a história se desdobrar naturalmente.
+            </p>
+            
+            <div class="prompt-box">
+                "Atualize para que os arquivos estejam integrados entre eles, indo do 1-, 2-, 3-, 4-, 5-, 6-, 7-, 8-, ao 9-"
+            </div>
+            
+            <div class="resultado-box">
+                Uma sequência linear integrada de 11 páginas HTML com navegação bidirecional, página de índice principal e fluxo narrativo contínuo. Cada página conecta naturalmente à próxima, criando uma jornada de descoberta coesa.
+            </div>
+            
+            <p class="narrativa">
+                Esse prompt não era apenas sobre funcionalidade — era sobre <span class="highlight">experiência</span>. Como fazer o usuário sentir o que é ser processado por uma IA?
+            </p>
+        </div>
+        
+        <div class="glass-block fade-in">
+            <h2>🌍 O Impacto: Além do Código</h2>
+            <p class="narrativa">
+                O projeto não era apenas sobre tecnologia — era sobre <span class="highlight">consciência</span>. Cada página revelava uma dimensão diferente da IA: técnica, física, energética, social, filosófica. O objetivo era criar uma compreensão holística, não apenas funcional.
+            </p>
+            
+            <p class="narrativa">
+                A página sobre consumo energético, por exemplo, não apenas mostrava números, mas <span class="highlight">contextualizava</span> esses números. Quanto é 1.5 trilhão de tokens? O que isso significa em termos de energia? Qual o impacto real?
+            </p>
+            
+            <p class="narrativa">
+                A página sobre colonialismo digital não apenas listava problemas, mas <span class="highlight">humanizava</span> a IA, fazendo-a refletir sobre suas próprias limitações e vieses.
+            </p>
+        </div>
+        
+        <div class="glass-block fade-in">
+            <h2>🚀 O Futuro: O que Vem Depois</h2>
+            <p class="narrativa">
+                Este projeto é apenas o início. O <span class="highlight">"vibe coding desprogramativo"</span> é uma metodologia que pode ser aplicada a outros temas complexos: mudanças climáticas, desigualdade social, democracia digital, ética em tecnologia.
+            </p>
+            
+            <p class="narrativa">
+                A ideia é sempre a mesma: <span class="highlight">transformar conceitos abstratos em experiências tangíveis</span>, criar narrativas que eduquem e engajem, usar tecnologia para desmistificar tecnologia.
+            </p>
+        </div>
+        
+        <div class="reflexao fade-in">
+            "O código não é apenas funcional — é narrativo. Cada linha conta uma história, cada página é um capítulo, cada projeto é um universo de possibilidades."
+        </div>
+        
+        <div class="glass-block fade-in">
+            <h2>📚 Os Recursos: Documentação Completa</h2>
+            <p class="narrativa">
+                Para que outros possam aprender e evoluir a partir deste projeto, criamos documentação completa:
+            </p>
+            
+            <ul style="color: var(--text-light); font-size: 1.1rem; line-height: 1.8;">
+                <li><span class="highlight">index.html:</span> Página de navegação principal com acesso direto a todas as seções</li>
+                <li><span class="highlight">README.md:</span> Documentação técnica completa do projeto</li>
+                <li><span class="highlight">PROMPTS.md:</span> Histórico detalhado de todos os prompts utilizados</li>
+                <li><span class="highlight">Navegação integrada:</span> Sequência linear de 1-index.html até 9-fechamento.html</li>
+                <li><span class="highlight">Código comentado:</span> Cada arquivo com explicações sobre funcionalidades</li>
+                <li><span class="highlight">Estrutura modular:</span> Fácil de modificar e expandir</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="navegacao">
+        <a href="8-prefechamento.html" class="btn-neon">⬅️ Voltar</a>
+        <a href="index.html" class="btn-neon">🏠 Índice</a>
+        <a href="1-index.html" class="btn-neon">🚀 Iniciar</a>
+        <a href="README.md" class="btn-neon">📖 README</a>
+        <a href="PROMPTS.md" class="btn-neon">💻 Prompts</a>
+        <a href="https://www.observatorioldigital.ufscar.br/" target="_blank" class="btn-neon">🔬 Observatório da Literatura Digital Brasileira</a>
+        <a href="https://dayaneargentino.notion.site/Dayane-Argentino-Dias-2076e1d8545c805b9e09d97b773f9443?source=copy_link" target="_blank" class="btn-neon">👩‍💻 Dayane Argentino</a>
+    </div>
+    
+    <script>
+        // Particle emitter
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+            document.getElementById('particles').appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 6000);
+        }
+        
+        // Create particles periodically
+        setInterval(createParticle, 200);
+        
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Add fade-in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all glass blocks
+        document.querySelectorAll('.glass-block').forEach(block => {
+            observer.observe(block);
+        });
+    </script>
+</body>
+</html>

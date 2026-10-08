@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>As Engrenagens Físicas – Segunda Camada</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="audio-manager.js"></script>
+    <script src="audio-button.js"></script>
+    <style>
+    body {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Courier New', monospace;
+    }
+    .container {
+      max-width: 95%;
+      margin: 0 auto;
+      padding: 40px 20px 60px 20px;
+    }
+    .glass-block {
+      background: rgba(27,27,31,0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      padding: 32px 28px;
+      margin-bottom: 32px;
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: var(--neon-yellow);
+      text-shadow: 0 0 12px var(--neon-yellow);
+      margin-bottom: 18px;
+    }
+    .bullets {
+      margin: 18px 0 18px 0;
+      padding-left: 18px;
+    }
+    .bullets li {
+      margin-bottom: 8px;
+      font-size: 1.08rem;
+      list-style: disc;
+    }
+    .reflexao {
+      font-style: italic;
+      color: var(--neon-cyan);
+      margin: 18px 0 0 0;
+      font-size: 1.1rem;
+    }
+
+    .contador-area {
+      margin: 30px 0 0 0;
+      text-align: center;
+    }
+    .contador-label {
+      color: var(--neon-magenta);
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+    .contador-bar {
+      width: 80%;
+      max-width: 400px;
+      height: 18px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      margin: 0 auto 10px auto;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 0 10px var(--neon-magenta, #FF00E0);
+      display: flex;
+      align-items: center;
+    }
+    .contador-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--neon-magenta), var(--neon-yellow));
+      border-radius: 8px;
+      transition: width 0.7s cubic-bezier(.6,1.5,.5,1.1);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      font-weight: bold;
+      color: var(--bg-dark);
+      font-size: 1.1rem;
+      padding-right: 12px;
+    }
+    .btn-next {
+      background: linear-gradient(45deg, var(--neon-cyan), var(--neon-yellow));
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 15px 30px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.2s;
+      box-shadow: 0 0 10px var(--neon-cyan, #00FFF7);
+      margin: 40px auto 0 auto;
+      display: block;
+    }
+    .btn-next:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 0 18px var(--neon-yellow, #FFEA00);
+    }
+
+    .video-section {
+      margin: 40px 0 30px 0;
+      text-align: center;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .video-container {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 15px var(--neon-cyan);
+      background: rgba(0,255,247,0.05);
+      border: 1px solid var(--neon-cyan);
+    }
+
+    .video-player {
+      width: 100%;
+      height: 200px;
+      display: block;
+      background: #000;
+      object-fit: cover;
+    }
+
+    .video-title {
+      color: var(--neon-yellow);
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+      font-weight: bold;
+      text-shadow: 0 0 8px var(--neon-yellow);
+    }
+
+    .video-description {
+      color: var(--text-light);
+      font-size: 1.15rem;
+      margin-top: 15px;
+      font-style: italic;
+      opacity: 0.8;
+      line-height: 1.6;
+    }
+
+    .video-controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 8px;
+    }
+
+    .video-btn {
+      background: linear-gradient(45deg, var(--neon-magenta), var(--neon-cyan));
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 8px var(--neon-magenta);
+      font-size: 0.8rem;
+    }
+
+    .video-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px var(--neon-cyan);
+    }
+
+    .video-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .video-selector {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 8px;
+      background: rgba(0,255,247,0.05);
+      border-radius: 6px;
+      border: 1px solid rgba(0,255,247,0.2);
+    }
+
+    .selector-btn {
+      background: rgba(255,255,255,0.1);
+      color: var(--text-light);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: bold;
+    }
+
+    .selector-btn:hover {
+      background: rgba(0,255,247,0.2);
+      box-shadow: 0 0 8px var(--neon-cyan);
+    }
+
+    .selector-btn.active {
+      background: var(--neon-cyan);
+      color: var(--bg-dark);
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+
+    .video-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      background: rgba(255,255,255,0.05);
+      border: 2px dashed var(--neon-magenta);
+      border-radius: 12px;
+      color: var(--neon-magenta);
+      font-style: italic;
+      opacity: 0.6;
+    }
+
+    .prompt-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0 40px 0;
+    }
+
+    .prompt-btn {
+      background: linear-gradient(45deg, var(--neon-cyan), var(--neon-yellow));
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 12px var(--neon-cyan);
+    }
+
+    .prompt-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 18px var(--neon-yellow);
+    }
+
+    .prompt-btn.active {
+      background: linear-gradient(45deg, var(--neon-yellow), var(--neon-magenta));
+      box-shadow: 0 0 15px var(--neon-magenta);
+    }
+
+    .prompt-content {
+      max-width: 800px;
+      margin: 20px auto;
+      background: rgba(27,27,31,0.8);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 15px var(--neon-cyan);
+      backdrop-filter: blur(10px);
+    }
+
+    .prompt-text h4 {
+      color: var(--neon-yellow);
+      margin: 15px 0 8px 0;
+      font-size: 1.1rem;
+      text-shadow: 0 0 8px var(--neon-yellow);
+    }
+
+    .prompt-text h4:first-child {
+      margin-top: 0;
+    }
+
+    .prompt-text p {
+      color: var(--text-light);
+      line-height: 1.6;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+    }
+    .gears-intro {
+      background: linear-gradient(120deg, rgba(0,255,247,0.08) 0%, rgba(255,255,0,0.04) 100%);
+      border-radius: 24px;
+      box-shadow: 0 0 32px 4px var(--neon-cyan, #00FFF7), 0 0 8px var(--neon-yellow, #FFEA00);
+      padding: 48px 32px 32px 32px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: visible;
+    }
+    .gears-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .gear {
+      position: absolute;
+      opacity: 0.13;
+      background: none;
+      width: 90px; height: 90px;
+      background-image: url('data:image/svg+xml;utf8,<svg fill="%2300FFF7" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g><circle cx="50" cy="50" r="30" stroke="%2300FFF7" stroke-width="8" fill="none"/><g><rect x="47" y="10" width="6" height="20" rx="3"/><rect x="47" y="70" width="6" height="20" rx="3"/><rect x="10" y="47" width="20" height="6" rx="3"/><rect x="70" y="47" width="20" height="6" rx="3"/></g></g></svg>');
+      background-size: contain;
+      background-repeat: no-repeat;
+      animation: spin 12s linear infinite;
+    }
+    .gear1 { left: -30px; top: -30px; width: 90px; height: 90px; animation-duration: 14s;}
+    .gear2 { right: -40px; top: 40px; width: 60px; height: 60px; animation-duration: 10s;}
+    .gear3 { left: 60%; bottom: -30px; width: 70px; height: 70px; animation-duration: 18s;}
+    @keyframes spin {
+      100% { transform: rotate(360deg);}
+    }
+    .gears-title {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      font-size: 2.3rem;
+      color: var(--neon-yellow);
+      text-shadow: 0 0 12px var(--neon-yellow);
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+      animation: fadeInUp 1s;
+    }
+    .gear-icon {
+      font-size: 1.3em;
+      vertical-align: middle;
+      margin: 0 8px;
+      filter: drop-shadow(0 0 6px var(--neon-cyan));
+      animation: spin 3s linear infinite;
+    }
+    .gears-desc {
+      position: relative;
+      z-index: 1;
+      font-size: 1.3rem;
+      text-align: center;
+      margin-bottom: 28px;
+      animation: fadeInUp 1s 0.3s forwards;
+      opacity: 0;
+      line-height: 1.6;
+    }
+    .gears-cards {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin: 48px 0 32px 0;
+      flex-wrap: nowrap;
+    }
+    .gear-card {
+      background: rgba(27,27,31,0.85);
+      border: 2.5px solid var(--neon-cyan);
+      border-radius: 18px;
+      box-shadow: 0 0 32px var(--neon-cyan, #00FFF7);
+      padding: 20px 16px;
+      min-width: 180px;
+      max-width: 220px;
+      font-size: 1rem;
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+      transition: box-shadow 0.3s, border 0.3s;
+      line-height: 1.6;
+    }
+    .gear-card.animated-gear:nth-child(1) { animation-delay: 0.5s;}
+    .gear-card.animated-gear:nth-child(2) { animation-delay: 0.9s;}
+    .gear-card.animated-gear:nth-child(3) { animation-delay: 1.3s;}
+    .gear-card-icon {
+      font-size: 3.5em;
+      margin-bottom: 12px;
+      filter: drop-shadow(0 0 12px var(--neon-cyan));
+    }
+    
+    .water-icon {
+      transition: all 0.3s ease;
+    }
+    
+    .water-icon:hover {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 20px var(--neon-cyan));
+    }
+    
+    .battery-icon {
+      transition: all 0.3s ease;
+    }
+    
+    .battery-icon:hover {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 20px var(--neon-cyan));
+    }
+    
+    .drawer-icon {
+      transition: all 0.3s ease;
+    }
+    
+    .drawer-icon:hover {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 20px var(--neon-cyan));
+    }
+    
+    .gear-icon {
+      transition: all 0.3s ease;
+    }
+    
+    .gear-icon:hover {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 20px var(--neon-cyan));
+    }
+    
+    /* Remover animação de rotação do ícone clicável */
+    .gear-card .gear-icon {
+      animation: none !important;
+    }
+    .gears-reflexao {
+      background: rgba(27,27,31,0.92);
+      border: 2.5px solid var(--neon-yellow);
+      color: var(--neon-yellow);
+      box-shadow: 0 0 32px 4px var(--neon-yellow, #FFEA00), 0 0 8px var(--neon-cyan, #00FFF7);
+      border-radius: 18px;
+      padding: 32px 32px 32px 32px;
+      margin: 48px auto 0 auto;
+      font-size: 1.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 700px;
+      text-align: center;
+      letter-spacing: 0.01em;
+      text-shadow: 0 0 12px var(--neon-yellow), 0 0 4px var(--neon-cyan);
+      transition: box-shadow 0.3s, border 0.3s;
+      position: relative;
+      line-height: 1.6;
+    }
+    @keyframes reflexaoPop {
+      0% { opacity: 0; transform: scale(0.95) translateY(40px); }
+      60% { opacity: 1; transform: scale(1.04) translateY(-6px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .gears-reflexao:hover {
+      box-shadow: 0 0 48px 8px var(--neon-yellow), 0 0 18px var(--neon-cyan);
+      border-color: var(--neon-cyan);
+    }
+    .gears-reflexao .neon-keyword {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 10px var(--neon-cyan), 0 0 2px #fff;
+      border-bottom: 1.5px dashed var(--neon-cyan);
+    }
+    .gears-reflexao .neon-keyword:hover {
+      color: var(--neon-yellow);
+      text-shadow: 0 0 16px var(--neon-yellow);
+    }
+    .gears-reflexao .gear-reflexao-icon {
+      position: absolute;
+      left: 24px;
+      font-size: 2.5em;
+      filter: drop-shadow(0 0 16px var(--neon-yellow));
+      animation: spin 5s linear infinite;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .gears-reflexao .coracao-silicio {
+      color: var(--neon-magenta);
+      font-weight: normal;
+      text-shadow: none;
+    }
+    .gears-reflexao .reflexao-text {
+      margin-left: 48px;
+      width: 100%;
+    }
+    @media (max-width: 900px) {
+      .gears-cards {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      }
+      .gear-card {
+        max-width: 98vw;
+        width: 100%;
+      }
+      .gears-reflexao {
+        padding: 24px 12px 24px 12px;
+        font-size: 1.05rem;
+      }
+      .gears-reflexao .gear-reflexao-icon {
+        left: 8px;
+        font-size: 2em;
+      }
+    }
+    .navegacao {
+      position: fixed;
+      right: 3vw;
+      bottom: 3vh;
+      display: flex;
+      flex-direction: row;
+      gap: 18px;
+      z-index: 9999;
+    }
+    
+    .voice-btn {
+      margin: 0;
+      padding: .4rem .8rem;
+      border: 1px solid rgba(0,255,247,.3);
+      background: rgba(0,255,247,.1);
+      color: var(--neon-cyan);
+      border-radius: .5rem;
+      cursor: pointer;
+      font-size: .9rem;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 4px var(--neon-cyan);
+    }
+    .voice-btn:hover {
+      background: rgba(0,255,247,.2);
+      border-color: var(--neon-cyan);
+      text-shadow: 0 0 8px var(--neon-cyan);
+      transform: scale(1.05);
+    }
+    .voice-btn:focus {
+      outline: 2px solid var(--neon-cyan);
+      outline-offset: 2px;
+    }
+  </style>
+  <script>
+    // Tooltip para palavras-chave (caso não esteja no global)
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.neon-keyword').forEach(el => {
+        el.addEventListener('mouseenter', function() {
+          const tip = document.createElement('div');
+          tip.className = 'neon-tooltip';
+          tip.textContent = el.getAttribute('data-tip');
+          document.body.appendChild(tip);
+          const rect = el.getBoundingClientRect();
+          tip.style.left = rect.left + window.scrollX + 'px';
+          tip.style.top = rect.bottom + window.scrollY + 6 + 'px';
+          el._tip = tip;
+        });
+        el.addEventListener('mouseleave', function() {
+          if (el._tip) el._tip.remove();
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="glass-block gears-intro">
+      <div class="gears-bg">
+        <span class="gear gear1"></span>
+        <span class="gear gear2"></span>
+        <span class="gear gear3"></span>
+      </div>
+      <h1 class="gears-title">
+        <span class="gear-icon">⚙️</span>
+        As Engrenagens Físicas
+        <span class="gear-icon">⚙️</span>
+      </h1>
+      <div style="text-align: center; margin-bottom: 18px;">
+        <button id="nar-play" type="button" aria-label="Ouvir narração da página" class="voice-btn">🔊 Ouvir</button>
+      </div>
+      <p class="gears-desc">
+        A magia das IAs generativas não acontece no ar: ela vive em arcas de metal chamadas <span class="neon-keyword" data-tip="Centros de processamento de dados">data centers</span>.<br>
+        São eles que processam trilhões de operações por segundo, mantêm seu modelo <span class="neon-keyword" data-tip="IA sempre pronta para responder">"vivo"</span> e permitem respostas instantâneas.
+      </p>
+      <div class="gears-cards">
+        <div class="gear-card animated-gear">
+          <span class="gear-card-icon battery-icon" style="cursor: pointer;">🔋</span>
+          <strong>Servidores 24/7:</strong> cada rack de máquinas funciona sem parar, consumindo energia como uma pequena cidade.
+        </div>
+        <div class="gear-card animated-gear">
+          <span class="gear-card-icon water-icon" style="cursor: pointer;">💧</span>
+          <strong>Resfriamento intensivo:</strong> sistemas de água gelada ou ar condicionado industrial removem o calor gerado a todo instante.
+        </div>
+        <div class="gear-card animated-gear">
+          <span class="gear-card-icon drawer-icon" style="cursor: pointer;">🗄️</span>
+          <strong>Backups e redundância:</strong> cópias e espelhamentos multiplicam o gasto energético — segurança custa eletricidade.
+        </div>
+        <div class="gear-card animated-gear">
+          <span class="gear-card-icon gear-icon" style="cursor: pointer;">⚙️</span>
+          <strong>Reflexão:</strong><br>
+          Você consegue imaginar o custo energético de manter a IA "acordada" 24h por dia?<br>
+          Onde acha que estão esses <span class="coracao-silicio">"coração" de silício</span>?
+        </div>
+      </div>
+
+
+  </div>
+          <div class="video-section">
+      <div class="video-title"><a href="https://www.google.com/search?q=data+center+das+IAs&sca_esv=7e5aa933cf6b028f&rlz=1C5CHFA_enBR1094BR1095&udm=2&biw=1451&bih=878&sxsrf=AE3TifNRw3qiF1x5Ai_6tZFKAuxLXfPPfw%3A1759866111001&ei=_mzlaKXmPMqE1sQPx8TR0Qc&ved=0ahUKEwil3ZeT7JKQAxVKgpUCHUdiNHoQ4dUDCBE&uact=5&oq=data+center+das+IAs&gs_lp=Egtnd3Mtd2l6LWltZyITZGF0YSBjZW50ZXIgZGFzIElBc0iYHlCcBVj5HHABeACQAQCYAZYBoAG8DKoBBDAuMTK4AQPIAQD4AQGYAgmgAt0IwgIHECMYJxjJAsICBBAAGB7CAgUQABiABMICBhAAGAoYHsICBhAAGAgYHpgDAIgGAZIHAzEuOKAH2B-yBwMwLji4B9MIwgcFMS4yLjbIByI&sclient=gws-wiz-img" target="_blank" style="color: var(--neon-yellow); text-decoration: none; text-shadow: 0 0 8px var(--neon-yellow); transition: all 0.3s ease;" onmouseover="this.style.textShadow='0 0 16px var(--neon-yellow)'; this.style.color='var(--neon-cyan)'" onmouseout="this.style.textShadow='0 0 8px var(--neon-yellow)'; this.style.color='var(--neon-yellow)'">Data Centers</a> em Ação - Sora, Hailu e Kling AI</div>
+      
+      <div class="prompt-buttons">
+        <button class="prompt-btn" id="prompt1Btn">Prompt 1</button>
+        <button class="prompt-btn" id="prompt2Btn">Prompt 2</button>
+      </div>
+      
+      <div class="prompt-content" id="prompt1Content" style="display: none;">
+        <div class="prompt-text">
+          <h4>Versão em português:</h4>
+          <p>Crie uma imagem atmosférica e estilizada de um grande data center moderno. A cena deve mostrar corredores profundos com fileiras simétricas de servidores iluminados por luzes azuladas e frias, sugerindo um ambiente tecnológico e enigmático. Ao fundo, uma luz dourada suave destaca uma das máquinas, como se algo especial estivesse sendo processado ali. O espaço deve parecer silencioso e potente, com detalhes como cabos organizados, vapor leve no chão e leves reflexos metálicos nas superfícies. O clima visual é futurista, quase sagrado, como se fosse um templo de dados. Não mostre pessoas, apenas a infraestrutura imponente e ativa.</p>
+          
+          <h4>Versão em inglês:</h4>
+          <p>Create a stylized and atmospheric image of a large, modern data center. The scene should feature deep corridors with symmetrical rows of server racks, lit by cold blue lights, evoking a high-tech and mysterious setting. In the distance, a soft golden glow highlights one specific machine, suggesting something important being processed. The space should feel silent and powerful, with organized cables, slight floor mist, and metallic reflections. The overall mood is futuristic, almost sacred, like a data temple. Do not include people—only the active, monumental infrastructure.</p>
+        </div>
+      </div>
+      
+      <div class="prompt-content" id="prompt2Content" style="display: none;">
+        <div class="prompt-text">
+          <h4>Prompt em português:</h4>
+          <p>Gere uma imagem realista e de alta resolução de um data center moderno em funcionamento. A cena deve mostrar fileiras organizadas de racks de servidores com luzes LED piscando em azul, verde e vermelho. O ambiente é limpo, controlado, com piso elevado e iluminação fria e intensa vinda do teto. Os cabos devem estar organizados ou passando por trilhos metálicos. A sala deve parecer silenciosa, com painéis de ventilação, detectores de calor e sistemas de refrigeração visíveis. O cenário transmite precisão, tecnologia avançada e potência de processamento. Sem pessoas, mas com tudo perfeitamente funcional.</p>
+          
+          <h4>Prompt em inglês:</h4>
+          <p>Generate a realistic high-resolution image of a modern, operational data center. The scene should display organized rows of server racks with blinking LED lights in blue, green, and red. The environment is clean and controlled, with raised flooring and cool white overhead lighting. Cables are neatly arranged or running through overhead metal trays. The room should look silent, efficient, and filled with power — featuring visible cooling systems, heat detectors, and ventilation panels. No people, just the infrastructure, working flawlessly.</p>
+        </div>
+      </div>
+      
+      <div class="video-grid">
+      <div class="video-container">
+        <video class="video-player" id="videoPlayer1" preload="metadata">
+          <source src="prompt 1 sora.mp4" type="video/mp4">
+          <source src="prompt 1 sora.webm" type="video/webm">
+          Seu navegador não suporta vídeos.
+        </video>
+        <div class="video-controls">
+          <button class="video-btn" id="playBtn1">▶️ Reproduzir</button>
+          <button class="video-btn" id="pauseBtn1" disabled>⏸️ Pausar</button>
+          <button class="video-btn" id="restartBtn1">🔄 Reiniciar</button>
+        </div>
+        <div class="video-selector">
+          <button class="selector-btn active" data-video="prompt 1 sora">Prompt 1</button>
+          <button class="selector-btn" data-video="prompt 2 sora ">Prompt 2</button>
+        </div>
+      </div>
+      <div class="video-container">
+        <video class="video-player" id="videoPlayer2" preload="metadata">
+          <source src="prompt 1 Hailu.mp4" type="video/mp4">
+          <source src="prompt 1 Hailu.webm" type="video/webm">
+          Seu navegador não suporta vídeos.
+        </video>
+        <div class="video-controls">
+          <button class="video-btn" id="playBtn2">▶️ Reproduzir</button>
+          <button class="video-btn" id="pauseBtn2" disabled>⏸️ Pausar</button>
+          <button class="video-btn" id="restartBtn2">🔄 Reiniciar</button>
+        </div>
+        <div class="video-selector">
+          <button class="selector-btn active" data-video="prompt 1 Hailu">Prompt 1</button>
+          <button class="selector-btn" data-video="prompt 2 Hailu">Prompt 2</button>
+        </div>
+      </div>
+      <div class="video-container">
+        <video class="video-player" id="videoPlayer3" preload="metadata">
+          <source src="prompt 1 klingai.mp4" type="video/mp4">
+          <source src="prompt 1 klingai.webm" type="video/webm">
+          Seu navegador não suporta vídeos.
+        </video>
+        <div class="video-controls">
+          <button class="video-btn" id="playBtn3">▶️ Reproduzir</button>
+          <button class="video-btn" id="pauseBtn3" disabled>⏸️ Pausar</button>
+          <button class="video-btn" id="restartBtn3">🔄 Reiniciar</button>
+        </div>
+        <div class="video-selector">
+          <button class="selector-btn active" data-video="prompt 1 klingai">Prompt 1</button>
+          <button class="selector-btn" data-video="prompt 2 klingai">Prompt 2</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-description">
+      Representações em vídeo geradas por IAs generativas no dia 01 de julho de 2025. As IAs generativas escolhidas foram aquelas oferecidas no buscador Google na primeira página.
+    </div>
+  </div>
+  <div class="navegacao">
+    <a href="4-primeira-camada.html" class="btn-neon">Voltar</a>
+    <a href="6-terceira-camada.html" class="btn-neon">Próximo</a>
+  </div>
+  <script>
+    // Fallback para garantir exibição após animação
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        document.querySelectorAll('.gears-desc, .gear-card, .gears-reflexao').forEach(el => {
+          el.style.opacity = 1;
+          el.style.transform = 'none';
+        });
+      }, 2000);
+    });
+    // Função para reproduzir som de água
+    function playWaterSound() {
+      if (typeof playAudioFile === 'function') {
+        playAudioFile('water-splash-02-352021.mp3', 0.6);
+      } else {
+        const audio = new Audio('water-splash-02-352021.mp3');
+        audio.volume = 0.6;
+        if (typeof trackAudioElement === 'function') {
+          trackAudioElement(audio);
+        }
+        audio.play().catch(error => {
+          console.log('Erro ao reproduzir som de água:', error);
+        });
+      }
+    }
+
+    // Função para reproduzir som de energia
+    function playBatterySound() {
+      if (typeof playAudioFile === 'function') {
+        playAudioFile('snd_tacataca3-412245.mp3', 0.6);
+      } else {
+        const audio = new Audio('snd_tacataca3-412245.mp3');
+        audio.volume = 0.6;
+        if (typeof trackAudioElement === 'function') {
+          trackAudioElement(audio);
+        }
+        audio.play().catch(error => {
+          console.log('Erro ao reproduzir som de energia:', error);
+        });
+      }
+    }
+
+    // Função para reproduzir som de gaveta metálica
+    function playDrawerSound() {
+      if (typeof playAudioFile === 'function') {
+        playAudioFile('metal-drawer-with-objects-inside-105838.mp3', 0.6);
+      } else {
+        const audio = new Audio('metal-drawer-with-objects-inside-105838.mp3');
+        audio.volume = 0.6;
+        if (typeof trackAudioElement === 'function') {
+          trackAudioElement(audio);
+        }
+        audio.play().catch(error => {
+          console.log('Erro ao reproduzir som de gaveta:', error);
+        });
+      }
+    }
+
+    // Função para reproduzir som de engrenagem
+    function playGearSound() {
+      if (typeof playAudioFile === 'function') {
+        playAudioFile('gear-spinning-loop-6981.mp3', 0.6);
+      } else {
+        const audio = new Audio('gear-spinning-loop-6981.mp3');
+        audio.volume = 0.6;
+        if (typeof trackAudioElement === 'function') {
+          trackAudioElement(audio);
+        }
+        audio.play().catch(error => {
+          console.log('Erro ao reproduzir som de engrenagem:', error);
+        });
+      }
+    }
+
+    // Adicionar eventos de clique nos ícones
+    document.addEventListener('DOMContentLoaded', function() {
+      const waterIcon = document.querySelector('.water-icon');
+      if (waterIcon) {
+        waterIcon.addEventListener('click', playWaterSound);
+      }
+      
+      const batteryIcon = document.querySelector('.battery-icon');
+      if (batteryIcon) {
+        batteryIcon.addEventListener('click', playBatterySound);
+      }
+      
+      const drawerIcon = document.querySelector('.drawer-icon');
+      if (drawerIcon) {
+        drawerIcon.addEventListener('click', playDrawerSound);
+      }
+      
+      const gearIcon = document.querySelector('.gear-card .gear-icon');
+      if (gearIcon) {
+        gearIcon.addEventListener('click', playGearSound);
+      }
+    });
+
+    // Controles dos prompts
+    const prompt1Btn = document.getElementById('prompt1Btn');
+    const prompt2Btn = document.getElementById('prompt2Btn');
+    const prompt1Content = document.getElementById('prompt1Content');
+    const prompt2Content = document.getElementById('prompt2Content');
+    
+    prompt1Btn.addEventListener('click', () => {
+      if (prompt1Content.style.display === 'none') {
+        prompt1Content.style.display = 'block';
+        prompt1Btn.classList.add('active');
+        prompt2Content.style.display = 'none';
+        prompt2Btn.classList.remove('active');
+      } else {
+        prompt1Content.style.display = 'none';
+        prompt1Btn.classList.remove('active');
+      }
+    });
+    
+    prompt2Btn.addEventListener('click', () => {
+      if (prompt2Content.style.display === 'none') {
+        prompt2Content.style.display = 'block';
+        prompt2Btn.classList.add('active');
+        prompt1Content.style.display = 'none';
+        prompt1Btn.classList.remove('active');
+      } else {
+        prompt2Content.style.display = 'none';
+        prompt2Btn.classList.remove('active');
+      }
+    });
+
+    // Controles dos vídeos
+    const videoContainers = document.querySelectorAll('.video-container');
+    
+    videoContainers.forEach((container, index) => {
+      const video = container.querySelector('.video-player');
+      const playBtn = container.querySelector(`#playBtn${index + 1}`);
+      const pauseBtn = container.querySelector(`#pauseBtn${index + 1}`);
+      const restartBtn = container.querySelector(`#restartBtn${index + 1}`);
+      const selectorBtns = container.querySelectorAll('.selector-btn');
+      
+      // Função para trocar vídeo específico
+      function changeVideo(videoName) {
+        const wasPlaying = !video.paused;
+        video.src = videoName + '.mp4';
+        video.load();
+        
+        if (wasPlaying) {
+          video.play();
+        }
+        
+        // Atualizar botões do seletor deste container
+        selectorBtns.forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.getAttribute('data-video') === videoName) {
+            btn.classList.add('active');
+          }
+        });
+      }
+
+      // Event listeners para os botões do seletor
+      selectorBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const videoName = btn.getAttribute('data-video');
+          changeVideo(videoName);
+        });
+      });
+
+      playBtn.addEventListener('click', () => {
+        video.play();
+        playBtn.disabled = true;
+        pauseBtn.disabled = false;
+      });
+
+      pauseBtn.addEventListener('click', () => {
+        video.pause();
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+      });
+
+      restartBtn.addEventListener('click', () => {
+        video.currentTime = 0;
+        video.play();
+        playBtn.disabled = true;
+        pauseBtn.disabled = false;
+      });
+
+      // Atualizar estado dos botões baseado no estado do vídeo
+      video.addEventListener('play', () => {
+        playBtn.disabled = true;
+        pauseBtn.disabled = false;
+      });
+
+      video.addEventListener('pause', () => {
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+      });
+
+      video.addEventListener('ended', () => {
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+      });
+    });
+  </script>
+
+
+  <!-- Texto da narração -->
+  <script type="application/json" id="nar-page">
+  {
+    "lang": "pt-BR",
+    "rate": 1.0,
+    "pitch": 1.0,
+    "text": "As Engrenagens Físicas. A magia das IAs generativas não acontece no ar. Ela vive em arcas de metal chamadas data centers. Trilhões de operações por segundo. Mantêm seu modelo vivo. Permitem respostas instantâneas. Servidores 24/7. Cada rack de máquinas funciona sem parar. Consumindo energia como uma pequena cidade. Resfriamento intensivo. Sistemas de água gelada. Removem o calor gerado a todo instante. Backups e redundância. Cópias e espelhamentos. Segurança custa eletricidade. Você consegue imaginar? O custo energético de manter a IA acordada 24h por dia? Onde estão esses coração de silício? Data Centers em Ação. Representações geradas por IAs. No dia 01 de julho de 2025."
+  }
+  </script>
+
+  <script>
+  (function () {
+    const btn = document.getElementById('nar-play');
+    if (!btn) return;
+
+    let playing = false;
+    let utter = null;
+
+    function loadNarration() {
+      const el = document.getElementById('nar-page');
+      if (el) {
+        try { return JSON.parse(el.textContent.trim()); }
+        catch { return { lang: 'pt-BR', rate: 1.0, pitch: 1.0, text: el.textContent.trim() }; }
+      }
+      return { lang: 'pt-BR', rate: 1.0, pitch: 1.0, text: '' };
+    }
+
+    async function toggle() {
+      if (!('speechSynthesis' in window)) {
+        alert('Seu navegador não suporta leitura por voz.');
+        return;
+      }
+      // Verifica se o áudio está habilitado
+      if (typeof isAudioEnabled === 'function' && !isAudioEnabled()) {
+        return;
+      }
+
+      if (playing) {
+        window.speechSynthesis.cancel();
+        btn.textContent = '🔊 Ouvir';
+        btn.setAttribute('aria-label', 'Ouvir narração da página');
+        playing = false;
+        return;
+      }
+
+      const data = (typeof loadNarration === 'function') ? await loadNarration() : null;
+      const text = data && data.text ? data.text : '';
+      if (!text) return;
+
+      window.speechSynthesis.cancel();
+      utter = new SpeechSynthesisUtterance(text);
+      utter.lang = data.lang || 'pt-BR';
+      utter.rate = data.rate || 1.0;
+      utter.pitch = data.pitch || 1.0;
+
+      utter.onend = () => {
+        playing = false;
+        btn.textContent = '🔊 Ouvir';
+        btn.setAttribute('aria-label', 'Ouvir narração da página');
+      };
+
+      speechSynthesis.speak(utter);
+      playing = true;
+      btn.textContent = '⏸️ Pausar';
+      btn.setAttribute('aria-label', 'Pausar narração');
+    }
+
+    btn.addEventListener('click', toggle);
+    window.addEventListener('beforeunload', () => speechSynthesis.cancel());
+  })();
+  </script>
+</body>
+</html> 

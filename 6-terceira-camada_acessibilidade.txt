@@ -1,0 +1,44 @@
+O Combustível Invisível
+
+→ Não há IA sem dados.
+→ Cada like, busca ou mensagem que você envia vira matéria-prima para treinar e refinar modelos.
+→ Esses "combustíveis digitais" são tão valiosos quanto petróleo: alimentam redes neurais e geram conhecimento sintético.
+
+❓ Se seus dados fossem commodities, você estaria disposto a "vendê-los"? Por quê?
+
+Escolha um tipo de dado:
+Histórico de busca
+Rede social
+Localização
+Mensagens
+
+Timeline do Histórico de busca:
+Cookies salvos → Logs de navegação → Indexação por buscadores → Perfis de interesse → Treinamento de IA
+
+Timeline da Rede social:
+Postagem/curtida → Armazenamento em servidores → Análise de engajamento → Perfilamento de preferências → Treinamento de IA
+
+Timeline da Localização:
+GPS ativado → Registro em apps → Mapeamento de rotas → Venda para anunciantes → Treinamento de IA
+
+Timeline das Mensagens:
+Envio/recebimento → Armazenamento em nuvem → Análise de conteúdo → Criação de perfil linguístico → Treinamento de IA
+
+Qual desses dados você acha que vale mais?
+
+📸 Fotos
+📍 Localização
+💬 Mensagens
+🛒 Histórico de Compras
+
+Respostas do quiz:
+Se escolher Localização: Surpresa! Na verdade, seu padrão de localização vale até 5x mais para anunciantes do que suas fotos.
+
+Se escolher Compras: Histórico de compras é valioso, mas localização é ainda mais cobiçada por anunciantes.
+
+Se escolher Fotos: Fotos são sensíveis, mas localização é o "ouro" para o mercado de dados.
+
+Se escolher Mensagens: Mensagens revelam muito, mas localização é o dado mais valioso para o mercado de anúncios.
+
+Voltar
+Próximo

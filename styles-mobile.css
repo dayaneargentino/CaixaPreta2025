@@ -1,0 +1,373 @@
+/* ===== ESTILOS MOBILE ESPECÍFICOS ===== */
+
+/* Otimizações gerais para mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* ===== LAYOUT MOBILE GLOBAL ===== */
+.mobile-controls {
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  right: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 9999;
+  gap: 10px;
+  height: 50px;
+  pointer-events: none;
+}
+
+.mobile-controls > * {
+  pointer-events: auto;
+}
+
+.mobile-nav-btn {
+  background: rgba(0,255,247,0.1);
+  border: 1px solid var(--neon-cyan);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--neon-cyan);
+  text-decoration: none;
+  font-size: 0.8rem;
+  text-shadow: 0 0 4px var(--neon-cyan);
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px rgba(0,255,247,0.2);
+  cursor: pointer;
+  touch-action: manipulation;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.mobile-nav-btn:active {
+  background: rgba(0,255,247,0.2);
+  transform: scale(0.95);
+}
+
+/* Espaçamento para controles fixos */
+body {
+  padding-bottom: 80px !important;
+}
+
+.container {
+  padding-bottom: 100px !important;
+}
+
+body {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overflow-x: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== SCANLINES MOBILE ===== */
+.scanlines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,255,247,0.02) 2px,
+    rgba(0,255,247,0.02) 4px
+  );
+  animation: scanlines 0.15s linear infinite;
+}
+
+/* ===== PARTICLE EMITTER MOBILE ===== */
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.particle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background: var(--neon-cyan);
+  border-radius: 50%;
+  animation: particle-float 8s linear infinite;
+}
+
+@keyframes particle-float {
+  0% {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(50px);
+    opacity: 0;
+  }
+}
+
+/* ===== BOTÕES TOUCH ===== */
+.touch-button {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.touch-button:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* Efeito de ripple para toque */
+.touch-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.touch-button:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* ===== RESPONSIVE BREAKPOINTS ===== */
+
+/* Smartphones pequenos (até 375px) */
+@media (max-width: 375px) {
+  .titulo-topo h1 {
+    font-size: 1.4rem !important;
+    letter-spacing: 0.1em !important;
+  }
+  
+  .cp-face {
+    font-size: 1.2rem !important;
+  }
+  
+  .mobile-button {
+    font-size: 0.9rem !important;
+    padding: 12px 24px !important;
+  }
+  
+  .mobile-control-button {
+    font-size: 0.7rem !important;
+    padding: 6px 10px !important;
+  }
+}
+
+/* Smartphones médios (376px - 414px) */
+@media (min-width: 376px) and (max-width: 414px) {
+  .titulo-topo h1 {
+    font-size: 1.8rem !important;
+  }
+  
+  .cp-face {
+    font-size: 1.6rem !important;
+  }
+}
+
+/* Tablets pequenos (415px - 768px) */
+@media (min-width: 415px) and (max-width: 768px) {
+  .box-3d {
+    width: 200px !important;
+    height: 200px !important;
+  }
+  
+  .face {
+    width: 200px !important;
+    height: 200px !important;
+    font-size: 18px !important;
+  }
+  
+  .front { transform: translateZ(100px) rotateY(0deg) !important; }
+  .back { transform: translateZ(-100px) rotateY(180deg) !important; }
+  .right { transform: translateX(100px) rotateY(90deg) !important; }
+  .left { transform: translateX(-100px) rotateY(-90deg) !important; }
+  .top { transform: translateY(-100px) rotateX(90deg) !important; }
+  .bottom { transform: translateY(100px) rotateX(-90deg) !important; }
+  
+  .titulo-topo h1 {
+    font-size: 2.2rem !important;
+  }
+  
+  .cp-face {
+    font-size: 1.9rem !important;
+  }
+}
+
+/* Orientação landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .container {
+    padding: 5px !important;
+  }
+  
+  .titulo-topo {
+    margin-bottom: 5px !important;
+  }
+  
+  .titulo-topo h1 {
+    font-size: 1.2rem !important;
+    margin: 0 !important;
+  }
+  
+  .box-3d {
+    width: 120px !important;
+    height: 120px !important;
+  }
+  
+  .face {
+    width: 120px !important;
+    height: 120px !important;
+    font-size: 10px !important;
+  }
+  
+  .front { transform: translateZ(60px) rotateY(0deg) !important; }
+  .back { transform: translateZ(-60px) rotateY(180deg) !important; }
+  .right { transform: translateX(60px) rotateY(90deg) !important; }
+  .left { transform: translateX(-60px) rotateY(-90deg) !important; }
+  .top { transform: translateY(-60px) rotateX(90deg) !important; }
+  .bottom { transform: translateY(60px) rotateX(-90deg) !important; }
+  
+  .mobile-button {
+    margin-top: 10px !important;
+    font-size: 0.8rem !important;
+    padding: 10px 20px !important;
+  }
+  
+  .mobile-controls {
+    bottom: 10px !important;
+    left: 10px !important;
+    right: 10px !important;
+  }
+}
+
+/* ===== ACESSIBILIDADE MOBILE ===== */
+
+/* Melhor contraste para telas pequenas */
+@media (max-width: 768px) {
+  .face {
+    border-width: 3px !important;
+    box-shadow: 0 0 25px #00fff7, 0 0 50px #0ff !important;
+  }
+  
+  .mobile-button {
+    border-width: 3px !important;
+    box-shadow: 0 0 15px rgba(0,255,247,0.3) !important;
+  }
+  
+  .mobile-control-button {
+    border-width: 2px !important;
+  }
+}
+
+/* ===== ANIMAÇÕES OTIMIZADAS PARA MOBILE ===== */
+
+/* Reduzir animações em dispositivos com preferência por movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  .box-3d {
+    animation: none !important;
+  }
+  
+  .particle {
+    animation: none !important;
+  }
+  
+  .scanlines {
+    animation: none !important;
+  }
+  
+  * {
+    transition: none !important;
+  }
+}
+
+/* ===== PERFORMANCE MOBILE ===== */
+
+/* Otimizações para dispositivos com menos poder de processamento */
+@media (max-width: 768px) {
+  .particle {
+    display: none; /* Desabilita partículas em mobile para melhor performance */
+  }
+  
+  .scanlines {
+    opacity: 0.5; /* Reduz opacidade das scanlines */
+  }
+}
+
+/* ===== SAFE AREAS PARA IPHONE X+ ===== */
+@supports (padding: max(0px)) {
+  .container {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+  
+  .mobile-controls {
+    left: max(20px, env(safe-area-inset-left));
+    right: max(20px, env(safe-area-inset-right));
+    bottom: max(20px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-dark: #000000;
+    --text-light: #FFFFFF;
+  }
+}
+
+/* ===== HIGH CONTRAST MODE ===== */
+@media (prefers-contrast: high) {
+  .face {
+    border-width: 4px !important;
+    box-shadow: 0 0 40px #00fff7, 0 0 80px #0ff !important;
+  }
+  
+  .mobile-button {
+    border-width: 4px !important;
+    background: var(--bg-dark) !important;
+    color: var(--neon-cyan) !important;
+  }
+}

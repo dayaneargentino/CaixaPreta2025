@@ -1,0 +1,25 @@
+O Algoritmo Invisível.
+
+Quando você digita uma pergunta, nada mágico acontece.
+Ela é convertida em centenas de milhares de tokens.
+Que atravessam camadas de uma rede neural gigante.
+
+Cada palavra vira números.
+Que o modelo lê como vetores.
+
+Dezenas a centenas de camadas.
+Processam e refinam essas informações.
+
+Alimentado com trilhões de palavras.
+O modelo aprende padrões estatísticos.
+Não entende no sentido humano.
+
+Você sabe como suas palavras viram matemática?
+Antes de voltar como uma resposta?
+
+Nenhuma mágica.
+Tudo isso em menos de um segundo.
+
+Mas essa é apenas a primeira camada.
+Existem outras camadas trabalhando em paralelo.
+Pronto para descobrir o que há por trás?
